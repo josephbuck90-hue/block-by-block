@@ -9,6 +9,8 @@ A modern-day gangland real-time strategy game that runs in your browser. No inst
 2. They share the 5-letter room code. Everyone else opens the same link, chooses **Multiplayer**, enters the code and clicks **Join**.
 3. Each player picks a gang. The host chooses how many gangs are on the map (the AI fills empty corners), the map size and the AI difficulty, then starts the war.
 
+**Voice chat:** click **Join voice chat** in the lobby, or **Voice** (key **T**) during a match. Your browser asks for the microphone once. Press **T** again to mute. Names glow while people talk, and anyone can listen without turning on their own mic.
+
 The host's browser runs the match, so the host should keep the game tab open. Players connect peer-to-peer with WebRTC (PeerJS). A few strict networks block these connections.
 
 ## How to play
@@ -28,6 +30,7 @@ The host's browser runs the match, so the host should keep the game tab open. Pl
 | W A S D, arrows, screen edge | Pan |
 | Mouse wheel | Zoom |
 | Space | Jump to Hideout |
+| T | Voice chat: join, then mute or unmute (multiplayer) |
 | M / P | Mute / Pause (the menu in multiplayer) |
 
 The whole game is a single `index.html` file with no build step.
