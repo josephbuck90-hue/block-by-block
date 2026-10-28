@@ -34,3 +34,15 @@ The host's browser runs the match, so the host should keep the game tab open. Pl
 | M / P | Mute / Pause (the menu in multiplayer) |
 
 The whole game is a single `index.html` file with no build step.
+
+## What's in the game
+
+- **Modes:** Single player, Multiplayer (up to 6), a 6-mission **Campaign**, and a guided **Tutorial**.
+- **Turf:** park your crew in a block until its border fills in. Held blocks pay you every second.
+- **Veterans:** units that get takedowns rank up (Veteran, Elite, Legend) and hit harder.
+- **Gang powers:** upgrade your Hideout to Headquarters, then press **R**. Each gang has its own power.
+- **City events:** armored trucks to rob, parades, blackouts, police crackdowns, truces and payday at a business.
+- **Day and night:** matches start at dusk and roll through night, dawn and day. You see less at night.
+- **City layouts:** Classic, Random, Downtown, Industrial and Waterfront.
+- **Saves:** single-player games autosave. Use Continue on the main menu.
+- **Bigger units:** toggle in the pause menu.
