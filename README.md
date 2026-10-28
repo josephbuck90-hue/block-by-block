@@ -62,3 +62,14 @@ Pick one on the setup screen (or in the multiplayer lobby):
 - **Sandbox:** unlimited cash, everything unlocked, no police, rivals stay home.
 
 Extra rules for any mode: **Teams** (2 or 3, allies share vision and can't hurt each other) and **Hardcore** (lose your Hideout and you're out).
+
+## Strategy features
+
+- **Research:** select a building and press **Y**. Hideout research covers the economy (Bigger Bags, Counting House, Laundering, Protection). Clubhouse, Chop Shop, Lookout and Safehouse each have their own upgrades.
+- **Production across buildings:** select several of the same building and train. Each order goes to the one with the shortest queue.
+- **Rally points:** right-click a spot, a business (Runners start collecting), a building site (Runners help build) or one of your fighters (new crew follow him).
+- **Follow:** right-click one of your own units with others selected and they escort him.
+- **Formations:** group moves keep brawlers in front and guns behind, and the group travels at its slowest member's speed.
+- **Height bonus:** crew hiding in taller buildings shoot farther and harder.
+- **Stash houses:** neutral, guarded outposts on the map. Clear the guards and walk up for $800.
+- **Co-op vs AI** (multiplayer lobby): every player on one team against the AI crews. The AI gets richer for each extra player.
