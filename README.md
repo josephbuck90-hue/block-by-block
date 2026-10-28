@@ -46,3 +46,19 @@ The whole game is a single `index.html` file with no build step.
 - **City layouts:** Classic, Random, Downtown, Industrial and Waterfront.
 - **Saves:** single-player games autosave. Use Continue on the main menu.
 - **Bigger units:** toggle in the pause menu.
+
+## Game modes
+
+Pick one on the setup screen (or in the multiplayer lobby):
+
+- **Conquest:** destroy every rival crew.
+- **Turf control:** hold half of the city's blocks for 2 minutes.
+- **Cash race:** first to collect the target ($15k / $20k / $25k by map size).
+- **King of the Hill:** hold the flagged center block for 2:30 in total.
+- **Timed:** 20 minutes, most points wins (turf, cash, takedowns, buildings).
+- **Regicide:** every gang has a Boss. Kill him and that gang is finished.
+- **Heist:** first to 5 big scores (rob armored trucks, grab Payday cash first).
+- **Survival** (single player): just you against escalating police waves. Tracks your best time.
+- **Sandbox:** unlimited cash, everything unlocked, no police, rivals stay home.
+
+Extra rules for any mode: **Teams** (2 or 3, allies share vision and can't hurt each other) and **Hardcore** (lose your Hideout and you're out).
