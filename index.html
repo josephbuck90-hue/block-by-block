@@ -92,7 +92,7 @@ button:focus-visible{outline:2px solid var(--you);outline-offset:2px}
 .mm{background:var(--deck);border:1px solid var(--line);border-radius:4px;padding:5px;aspect-ratio:75/63;height:100%;max-width:100%}
 .mmi{position:relative;width:100%;height:100%}
 #mini{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair;touch-action:none}
-.info{background:var(--deck);border:1px solid var(--line);border-radius:4px;padding:10px 14px;min-width:0;overflow:hidden;display:grid;align-content:start;gap:6px}
+.info{background:var(--deck);border:1px solid var(--line);border-radius:4px;padding:10px 14px;min-width:0;overflow:auto;display:grid;align-content:start;gap:6px}
 .info h2{margin:0;font-family:var(--f-display);font-size:17px;font-weight:400;line-height:1.1;letter-spacing:.01em}
 .info .sub{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
 .info p{margin:0;font-size:14px;line-height:1.4;color:var(--muted);max-width:68ch}
@@ -561,7 +561,7 @@ const BUILD_KEYS=[['Z','safehouse'],['X','clubhouse'],['C','front'],['V','chopsh
 const DIFF={
   easy:  {mul:.65,first:420,int:150,size:4,grow:1,cap:8, run:8, turf:.6},
   normal:{mul:.95,first:300,int:115,size:6,grow:2,cap:20,run:12,turf:1},
-  hard:  {mul:1.3,first:170,int:80, size:9,grow:4,cap:45,run:16,turf:1.3},
+  hard:  {mul:1.45,first:160,int:75, size:9,grow:4,cap:45,run:17,turf:1.4},
 };
 const BIZ_NAMES=['Strip Club','Massage Parlor','Laundromat','Bodega','Car Wash','Pawn Shop','Barbershop','Deli','Nail Salon','Tire Shop','Taqueria','Arcade','Check Cashing','Pizza','Hardware','Phone Repair','Diner','Records','Gym','Liquor','Wings'];
 const MAXSUP=120;
@@ -1052,8 +1052,8 @@ function kill(t,src){
   } else {
     addFx({t:'puff',x:t.x,y:t.y,l:.5,m:.5,r:t.r});
     if(t.type==='boss'&&P[t.owner]&&!P[t.owner].out){notifyAll(C(t.owner).name+' lost their Boss. The whole crew scatters','bad','alert'); logEv(C(t.owner).name+' Boss taken down',t.owner); wipeOwner(t.owner);}
-    if(t.owner===NEU&&src.owner>=0&&src.owner!==POL&&MODE==='heist'){MS.h[src.owner]=(MS.h[src.owner]||0)+1;}
-    if(t.owner===NEU&&src.owner>=0&&src.owner!==POL&&P[src.owner]){P[src.owner].cash+=500; if(ST[src.owner])ST[src.owner].cash+=500; addFx({t:'txt',x:t.x,y:t.y-20,s:'+$500',c:'#7fd67a',l:1.8,m:1.8,o:src.owner});
+    if(t.type==='truck'&&src.owner>=0&&src.owner!==POL&&src.owner!==NEU&&MODE==='heist'){MS.h[src.owner]=(MS.h[src.owner]||0)+1;}
+    if(t.type==='truck'&&src.owner>=0&&src.owner!==POL&&src.owner!==NEU&&P[src.owner]){P[src.owner].cash+=500; if(ST[src.owner])ST[src.owner].cash+=500; addFx({t:'txt',x:t.x,y:t.y-20,s:'+$500',c:'#7fd67a',l:1.8,m:1.8,o:src.owner});
       notifyAll(C(src.owner).name+' robbed the armored truck','','cash'); logEv(C(src.owner).name+' robbed the armored truck',src.owner); addHeat(src.owner,10);}
     if(UT[t.type].veh){addDecal({t:'wreck',x:t.x,y:t.y,f:t.face||0,l:55,r:t.r,v:t.type==='van'?1:0}); addFx({t:'boom',x:t.x,y:t.y,l:.5,m:.5,r:t.r*1.6}); snd('boom',t.x,t.y);}
     else addDecal({t:'stain',x:t.x,y:t.y,l:25,r:t.r});
@@ -1648,17 +1648,27 @@ function aiThink(o){
   // waves
   const ready=army.filter(a=>a.cmd.t==='idle');
   if(time>=AI.next&&ready.length>=AI.size){
-    const tgt=nearestEnemyBld(o,hq);
+    const tgt=raidTarget(o,hq);
     if(tgt){for(const a of army){a.cmd={t:'amove',x:tgt.x,y:tgt.y};setPath(a,tgt.x,tgt.y);}
       AI.next=time+(AI.int||D.int); AI.size+=D.grow; AI.attacking=true; AI.waves++; AI.tgt=tgt.owner;
       notify(tgt.owner,C(o).name+' is rolling out on you','bad');}
   }
   if(AI.attacking){
     if(army.length<2)AI.attacking=false;
-    else{const tgt=nearestEnemyBld(o,hq);
+    else{const tgt=AI.tgt!==undefined&&ents.some(e=>!e.dead&&e.kind==='bld'&&e.owner===AI.tgt)?nearestBldOf(AI.tgt,hq):raidTarget(o,hq);
       for(const a of army)if(a.cmd.t==='idle'&&tgt){a.cmd={t:'amove',x:tgt.x,y:tgt.y};setPath(a,tgt.x,tgt.y);}}
   }
 }
+// pick whose base to raid: close crews first, but crews already being raided by other AIs count as farther away,
+// so rivals spread out instead of piling onto the same corner
+function raidTarget(o,from){
+  const pile={}; for(const k in AIs){if(+k!==o&&AIs[k].attacking&&AIs[k].tgt!==undefined)pile[AIs[k].tgt]=(pile[AIs[k].tgt]||0)+1;}
+  let b=null,bd=1e18;
+  for(const e of ents){if(e.dead||e.owner===o||e.owner===POL||e.owner===NEU||e.kind!=='bld'||e.type==='stash'||ally(o,e.owner))continue;
+    const d=Math.hypot(e.x-from.x,e.y-from.y)*(1+.75*(pile[e.owner]||0))*(.9+Math.random()*.2); if(d<bd){bd=d;b=e;}}
+  return b;
+}
+const nearestBldOf=(o,from)=>{let b=null,bd=1e18;for(const e of ents){if(e.dead||e.kind!=='bld'||e.owner!==o)continue;const d=(e.x-from.x)**2+(e.y-from.y)**2;if(d<bd){bd=d;b=e;}}return b;};
 function nearestEnemyBld(o,from){let b=null,bd=1e18;for(const e of ents){if(e.dead||e.owner===o||e.owner===POL||e.owner===NEU||e.kind!=='bld'||ally(o,e.owner))continue;const d=(e.x-from.x)**2+(e.y-from.y)**2;if(d<bd){bd=d;b=e;}}return b;}
 
 /* ---------- day and night ---------- */
@@ -2703,7 +2713,7 @@ function renderInfo(){
       else if(!e.done){const n=ents.filter(u=>!u.dead&&u.owner===e.owner&&u.type==='runner'&&(NET&&NET.role==='client'?true:(u.cmd&&u.cmd.t==='build'&&u.cmd.site===e.id))&&edgeDist(u,e)<T*1.2).length, k=Math.min(5,n), left=k?Math.ceil((1-e.prog)*BT[e.type].time/k/(SBX(e.owner)?4:1)):0;
         h+=`<p>Under construction · <b>${Math.floor(e.prog*100)}%</b>. ${k?`<b>${n}</b> ${n===1?'Runner':'Runners'} working, done in about <b>${left}s</b>.`:'Nobody is working on it.'} Each Runner adds full speed, up to 5. Right-click it with more Runners selected to help.</p>`;}
       else if(e.owner===ME&&e.queue.length){h+='<div class="queue">'+e.queue.map((q,i)=>`<button class="qi" data-q="${i}" title="Cancel and refund">${q==='@up'?'Upgr.':isTech(q)?(TECH[q.slice(3)]||{name:'Tech'}).name.split(' ')[0].slice(0,6):UT[q].name.slice(0,6)}${i===0?`<i style="width:${e.pt/qTime(e,q)*100}%"></i>`:''}</button>`).join('')+'</div>';}
-      else if(e.owner===ME)h+=`<p>${d.tip}${d.trains?' Right-click to set a rally point: a spot, a business (Runners start collecting), a building site (Runners help build) or one of your fighters (new crew follow him).':''}</p>`;
+      else if(e.owner===ME)h+=`<p>${e.lvl>1&&d.up?d.up.title+'. '+d.up.tip:d.tip}${d.trains?' Right-click to set a rally point: a spot, a business (Runners start collecting), a building site (Runners help build) or one of your fighters (new crew follow him).':''}</p>`;
       if(e.done&&garCap(e)&&e.owner===ME)h+=`<div class="kv"><span>Hiding <b>${e.gar.length}/${garCap(e)}</b></span>${heightBonus(e)?`<span>Height <b>+${Math.round(heightBonus(e)/T*10)/10} blk range</b></span>`:''}${e.gar.length?`<span>Fortified <b>${Math.round(Math.min(.55,.2+.05*e.gar.length)*100)}% less damage</b></span>`:'<span>Right-click with crew selected to hide them here</span>'}</div>`;
       if(d.atk&&e.done)h+=`<div class="kv"><span>HP <b>${Math.ceil(e.hp)}/${e.maxhp}</b></span><span>Damage <b>${d.atk.dmg+(e.lvl>1?5:0)}</b></span><span>Range <b>${Math.round(d.atk.rng/T*10)/10} blk</b></span>${e.tgt?'<span><b>Firing</b></span>':''}</div>`;}
   } else if(s.length>1){
@@ -3178,22 +3188,25 @@ function endTut(){TUT=null; afterTut=true; $('#tut').hidden=true;}
 /* ---------- campaign ---------- */
 const CAMPAIGN=[
   {name:'Corner Store',foes:['rails'],size:'small',layout:'classic',diff:'easy',
-    brief:'The Rail Yard Crew is shaking down your corner store. Show them whose block this is.',obj:()=>'Destroy the Rail Yard Crew Hideout.'},
+    brief:'The Rail Yard Crew is shaking down your corner store. Show them whose block this is.',obj:()=>'Destroy the Rail Yard Crew Hideout.',
+    setup:()=>{AIs[1].next+=150; AIs[1].size=3; P[0].cash+=150;}},
   {name:'Dockside',foes:['harbor'],size:'small',layout:'waterfront',diff:'normal',
     brief:'Harbor Syndicate runs the docks from behind two Lookouts and a fat bankroll. Break in.',obj:()=>'Wipe out Harbor Syndicate. They start dug in.',
-    setup:()=>{const h=ents.find(e=>e.owner===1&&e.type==='hideout'); P[1].cash+=600; for(const ty of ['lookout','lookout']){const st=findSite(ty,1,h); if(st)mkBld(ty,1,st.x,st.y,true);}}},
+    setup:()=>{const h=ents.find(e=>e.owner===1&&e.type==='hideout'); P[1].cash+=200; P[0].cash+=150; for(const ty of ['lookout','lookout']){const st=findSite(ty,1,h); if(st)mkBld(ty,1,st.x,st.y,true);}}},
   {name:'Turf War',foes:['iron'],size:'medium',layout:'industrial',diff:'normal',
     brief:'Ironworks says the mill district is theirs. Take the streets block by block.',
-    obj:()=>`Hold <b>8 blocks</b> at once for 60 seconds, or wipe out Ironworks. Held: <b>${turfCount(ME)}/8</b>${CAMP.hold>0?' · '+Math.ceil(60-CAMP.hold)+'s to go':''}`,
-    win:dt=>{if(turfCount(ME)>=8)CAMP.hold+=dt; else CAMP.hold=0; return CAMP.hold>=60;}},
+    obj:()=>`Hold <b>12 blocks</b> at once for 90 seconds, or wipe out Ironworks. Held: <b>${turfCount(ME)}/12</b>${CAMP.hold>0?' · '+Math.ceil(90-CAMP.hold)+'s to go':''}`,
+    win:dt=>{if(turfCount(ME)>=12)CAMP.hold+=dt; else CAMP.hold=0; return CAMP.hold>=90;},
+    setup:()=>{P[1].cash+=300;}},
   {name:'Heat Wave',foes:['neon'],size:'small',layout:'downtown',diff:'normal',crack:true,
     brief:'Downtown is crawling with cops after the Neon Ghosts torched a precinct car. Keep your head down.',obj:()=>'Wipe out the Neon Ghosts. Heat builds faster, and police come for you at 50 heat.'},
   {name:'Hold the Line',foes:['silver'],size:'small',layout:'mixed',diff:'hard',noEvents:true,
     brief:'Silver Line wants your corner and they are sending everything. Survive until the cavalry shows.',
-    obj:()=>`Survive Silver Line raids for <b>10 minutes</b>, or wipe them out. ${time<600?Math.floor((600-time)/60)+':'+String(Math.floor((600-time)%60)).padStart(2,'0')+' left':''}`,
-    setup:()=>{AIs[1].next=75; AIs[1].size=3; AIs[1].int=65; P[1].cash+=400;}, win:()=>time>=600},
-  {name:'Kingpin',foes:['rails','harbor','iron','neon','silver'],size:'medium',layout:'mixed',diff:'normal',
-    brief:'Every crew left in the city is gunning for Sixth Street. One gang walks away with it all.',obj:()=>'Be the last crew standing.'},
+    obj:()=>`Survive Silver Line raids for <b>12 minutes</b>, or wipe them out. ${time<720?Math.floor((720-time)/60)+':'+String(Math.floor((720-time)%60)).padStart(2,'0')+' left':''}`,
+    setup:()=>{AIs[1].next=70; AIs[1].size=4; AIs[1].int=55; P[1].cash+=900;}, win:()=>time>=720},
+  {name:'Kingpin',foes:['rails','harbor','iron','neon','silver'],size:'medium',layout:'mixed',diff:'easy',
+    brief:'Every crew left in the city is gunning for Sixth Street. One gang walks away with it all.',obj:()=>'Be the last crew standing. You start with extra cash and a Lookout, and the other crews fight each other too.',
+    setup:()=>{P[0].cash+=1400; const h=ents.find(e=>e.owner===0&&e.type==='hideout'); for(let i=0;i<2;i++){const st=findSite('lookout',0,h); if(st)mkBld('lookout',0,st.x,st.y,true);} for(const k in AIs)AIs[k].next+=180;}},
 ];
 let campDone=0; try{campDone=+(DS.getItem('bbb-camp')||0)||0;}catch(_){}
 function renderCamp(){
@@ -3570,7 +3583,24 @@ $('#vVol').addEventListener('input',ev=>{VOICE.vol=(+ev.target.value)/100; for(c
 // backdrop city behind the menu
 resize(); newGame('normal','sixth',5,'small'); state='menu'; P[0].out=true; updVision(); P[0].out=false; cam.z=.85; centerOn(WW*.45,WH*.5); renderUI(true);
 requestAnimationFrame(frame);
-window.__bbb={get VOICE(){return VOICE;},voiceJoin,get ME(){return ME;},get NET(){return NET;},get MPs(){return MP;},get ents(){return ents;},get P(){return P;},get time(){return time;},update,newGame,smartCommand,setSel,selectArmy,orderMove,train,canPlace,placeSite,findSite,get state(){return state;},checkEnd,upgrade,get OWN(){return OWN;},get station(){return station;},UT,BT,setMode,tryPlace,get mode(){return mode;},mkUnit,kill,render,startEvent,saveGame,loadGame,startMission,startTutorial,usePower,get turf(){return turf;},get WW(){return WW;},get WH(){return WH;},get EVT(){return EVT;},get ST(){return ST;},get TUT(){return TUT;},get CAMP(){return CAMP;},setTime:t=>{time=t;},zoomAt:(x,y,z)=>{cam.z=z;centerOn(x,y);},turfCount,SKIPR,aiThink,applyCmd,setRules:(m,t,h,c)=>{MODE=m;TEAMS=t;HARD=h;COOP=!!c;},research,canResearch,orderMove2:orderMove,play:()=>{state='play';},get MS(){return MS;},get MODE(){return MODE;},pick:(x,y)=>{const e=pickAt(x,y);return e?[e.kind,e.type||e.name,e.owner]:null;},get AIs(){return AIs;}};
+// offline music render (used to make the trailer soundtrack): returns a 16-bit stereo WAV as base64
+async function renderMusic(sec,hotFrom,hotTo,shots){
+  const sr=44100, oc=new OfflineAudioContext(2,Math.ceil(sr*sec),sr), keep={ctx:AU.ctx,mus:AU.mus,sfx:AU.sfx,noise:AU.noise,hot:AU.hot};
+  try{
+    AU.ctx=oc; const comp=oc.createDynamicsCompressor(); comp.threshold.value=-14; comp.ratio.value=4; const m=oc.createGain(); m.gain.value=.9; comp.connect(m); m.connect(oc.destination);
+    AU.mus=oc.createGain(); AU.mus.gain.value=.34; AU.mus.connect(comp); AU.sfx=oc.createGain(); AU.sfx.gain.value=.22; AU.sfx.connect(comp);
+    const nb=oc.createBuffer(1,sr,sr), nd=nb.getChannelData(0); for(let i=0;i<sr;i++)nd[i]=Math.random()*2-1; AU.noise=nb;
+    const spb=60/86/4; let t=.05, st=0;
+    while(t<sec-.1){AU.hot=(t>=hotFrom&&t<hotTo)?time+1e6:-99; musStep(st,t+(st%2===1?spb*.12:0)); t+=spb; st++;}
+    for(const [at,name] of (shots||[]))if(SND[name]&&at<sec)SND[name](at,.8);
+    const buf=await oc.startRendering(), L=buf.getChannelData(0), Rr=buf.getChannelData(1), n=L.length;
+    const ab=new ArrayBuffer(44+n*4), v=new DataView(ab); const ws=(o,str)=>{for(let i=0;i<str.length;i++)v.setUint8(o+i,str.charCodeAt(i));};
+    ws(0,'RIFF'); v.setUint32(4,36+n*4,true); ws(8,'WAVE'); ws(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,2,true); v.setUint32(24,sr,true); v.setUint32(28,sr*4,true); v.setUint16(32,4,true); v.setUint16(34,16,true); ws(36,'data'); v.setUint32(40,n*4,true);
+    for(let i=0,o=44;i<n;i++,o+=4){v.setInt16(o,Math.max(-1,Math.min(1,L[i]))*32767,true); v.setInt16(o+2,Math.max(-1,Math.min(1,Rr[i]))*32767,true);}
+    const u8=new Uint8Array(ab); let bin=''; for(let i=0;i<u8.length;i+=32768)bin+=String.fromCharCode.apply(null,u8.subarray(i,i+32768)); return btoa(bin);
+  } finally {Object.assign(AU,keep);}
+}
+window.__bbb={renderMusic,get VOICE(){return VOICE;},voiceJoin,get ME(){return ME;},get NET(){return NET;},get MPs(){return MP;},get ents(){return ents;},get P(){return P;},get time(){return time;},update,newGame,smartCommand,setSel,selectArmy,orderMove,train,canPlace,placeSite,findSite,get state(){return state;},checkEnd,upgrade,get OWN(){return OWN;},get station(){return station;},UT,BT,setMode,tryPlace,get mode(){return mode;},mkUnit,kill,render,startEvent,saveGame,loadGame,startMission,startTutorial,usePower,get turf(){return turf;},get WW(){return WW;},get WH(){return WH;},get EVT(){return EVT;},get ST(){return ST;},get TUT(){return TUT;},get CAMP(){return CAMP;},setTime:t=>{time=t;},zoomAt:(x,y,z)=>{cam.z=z;centerOn(x,y);},turfCount,SKIPR,aiThink,applyCmd,get diff(){return diff;},get EV(){return EV;},setRules:(m,t,h,c)=>{MODE=m;TEAMS=t;HARD=h;COOP=!!c;},research,canResearch,orderMove2:orderMove,play:()=>{state='play';},get MS(){return MS;},get MODE(){return MODE;},pick:(x,y)=>{const e=pickAt(x,y);return e?[e.kind,e.type||e.name,e.owner]:null;},get AIs(){return AIs;}};
 })();
 </script>
 
