@@ -1,0 +1,24 @@
+# Builds the Windows desktop app. Run it from the Actions tab ("Run workflow") or by pushing a tag like v0.9.1.
+name: Desktop build
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        working-directory: desktop
+        run: npm ci
+      - name: Package
+        working-directory: desktop
+        run: npm run package:win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BlockByBlock-Windows-x64
+          path: desktop/dist/BlockByBlock-win32-x64

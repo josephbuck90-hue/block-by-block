@@ -171,6 +171,14 @@ button:focus-visible{outline:2px solid var(--you);outline-offset:2px}
 .evs b{font-family:var(--f-mono);color:var(--text);font-weight:500;margin-right:8px}
 .tblWrap{overflow-x:auto}
 #phase{min-width:38px}
+.setgrid{display:grid;grid-template-columns:minmax(110px,auto) minmax(0,1fr);gap:8px 14px;align-items:center}
+.setgrid>span,.setgrid>label{font-size:14px;color:var(--muted);font-weight:600}
+.rng{accent-color:var(--you);width:100%;max-width:360px}
+.keygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px 14px}
+.krow{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;background:var(--deck-2);border:1px solid var(--line);border-radius:3px;padding:4px 6px 4px 10px}
+.kbtn{font-family:var(--f-mono);font-size:13px;min-width:64px;background:var(--deck);border:1px solid var(--line);border-radius:3px;padding:4px 8px}
+.kbtn.wait{border-color:var(--you);color:var(--you)}
+.kbtn:hover{border-color:var(--muted)}
 #evBanner{position:absolute;top:10px;right:10px;z-index:4;background:rgba(12,15,19,.92);border:1px solid var(--line);border-left:3px solid #ffd76a;border-radius:3px;padding:6px 10px;font-size:13.5px;font-weight:600;max-width:min(300px,calc(100% - 20px));pointer-events:none}
 #evBanner small{display:block;font-weight:500;color:var(--muted);font-size:12px}
 .camp{display:grid;gap:8px}
@@ -209,11 +217,11 @@ button:focus-visible{outline:2px solid var(--you);outline-offset:2px}
     <div class="stat"><b id="clock">0:00</b><span class="lab" id="phase">Dusk</span></div>
     <div class="rv" id="rivals" title="Rival crews still standing"></div>
     <div class="tools">
-      <button class="tbtn" id="bArmy" title="Select all fighters (F)">Army<kbd>F</kbd></button>
-      <button class="tbtn" id="bIdle" title="Select an idle runner (.)">Idle<kbd>.</kbd></button>
-      <button class="tbtn" id="bVoice" title="Voice chat: join, then mute or unmute (T)" hidden>Voice<kbd>T</kbd></button>
-      <button class="tbtn" id="bSound" title="Mute or unmute (M)">Sound<kbd>M</kbd></button>
-      <button class="tbtn" id="bPause" title="Pause (P)">Pause<kbd>P</kbd></button>
+      <button class="tbtn" id="bArmy" title="Select all fighters">Army<kbd data-act="army">F</kbd></button>
+      <button class="tbtn" id="bIdle" title="Select an idle runner">Idle<kbd data-act="idle">.</kbd></button>
+      <button class="tbtn" id="bVoice" title="Voice chat: join, then mute or unmute" hidden>Voice<kbd data-act="voice">T</kbd></button>
+      <button class="tbtn" id="bSound" title="Mute or unmute">Sound<kbd data-act="mute">M</kbd></button>
+      <button class="tbtn" id="bPause" title="Pause">Pause<kbd data-act="pause">P</kbd></button>
     </div>
   </header>
 
@@ -229,20 +237,21 @@ button:focus-visible{outline:2px solid var(--you);outline-offset:2px}
         <div class="keys">
           <div><kbd>Left-drag</kbd>Select your crew</div>
           <div><kbd>Right-click</kbd>Move, attack, collect</div>
-          <div><kbd>Q</kbd>Attack-move, then click</div>
-          <div><kbd>E</kbd>Stop</div>
-          <div><kbd>Z X C V B</kbd>Build or train</div>
-          <div><kbd>F</kbd>Select all fighters</div>
-          <div><kbd>.</kbd>Next idle runner</div>
-          <div><kbd>Space</kbd>Jump to Hideout</div>
-          <div><kbd>W A S D</kbd>Pan (or arrows, screen edge)</div>
+          <div><kbd data-act="attack">Q</kbd>Attack-move, then click</div>
+          <div><kbd data-act="stop">E</kbd>Stop</div>
+          <div><kbd data-acts="slot1 slot2 slot3 slot4 slot5">Z X C V B</kbd>Build or train</div>
+          <div><kbd data-act="army">F</kbd>Select all fighters</div>
+          <div><kbd data-act="idle">.</kbd>Next idle runner</div>
+          <div><kbd data-act="home">Space</kbd>Jump to Hideout</div>
+          <div><kbd data-acts="camUp camLeft camDown camRight">W A S D</kbd>Pan (or arrows, screen edge)</div>
           <div><kbd>Wheel</kbd>Zoom</div>
           <div><kbd>Ctrl 1–5</kbd>Save a group</div>
-          <div><kbd>R</kbd>Gang power (Headquarters)</div>
-          <div><kbd>T</kbd>Voice chat (multiplayer)</div>
+          <div><kbd data-act="power">R</kbd>Gang power (Headquarters)</div>
+          <div><kbd data-act="research">Y</kbd>Research (buildings)</div>
+          <div><kbd data-act="voice">T</kbd>Voice chat (multiplayer)</div>
           <div><kbd>Touch</kbd>Tap to select or order, drag to pan</div>
         </div>
-        <div class="row"><button class="go" id="bContinue" hidden>Continue</button><button class="go" id="bStart">Single player</button><button class="ghost" id="bMP">Multiplayer</button><button class="ghost" id="bCamp">Campaign</button><button class="ghost" id="bTut">Tutorial</button></div>
+        <div class="row"><button class="go" id="bContinue" hidden>Continue</button><button class="go" id="bStart">Single player</button><button class="ghost" id="bMP">Multiplayer</button><button class="ghost" id="bCamp">Campaign</button><button class="ghost" id="bTut">Tutorial</button><button class="ghost" id="bSettings">Settings</button><button class="ghost" id="bQuit" hidden>Quit to desktop</button></div>
         <p class="mpStatus" id="saveNote" hidden></p>
       </div>
     </div>
@@ -371,7 +380,7 @@ button:focus-visible{outline:2px solid var(--you);outline-offset:2px}
       <div class="card">
         <h1 class="title" style="font-size:40px">Paused</h1>
         <p class="lede">Runners collect cash at businesses and bring it to your Hideout or a Front. Every trip, shot and takedown adds heat. A Front cools heat faster. At 70 heat, squads leave the police station and hunt your crew. Select a building to upgrade it and unlock new units.</p>
-        <div class="row"><button class="ghost" id="tMusic" aria-pressed="true">Music: On</button><button class="ghost" id="tSfx" aria-pressed="true">Effects: On</button><button class="ghost" id="tBig" aria-pressed="false">Bigger units: Off</button></div>
+        <div class="row"><button class="ghost" id="tMusic" aria-pressed="true">Music: On</button><button class="ghost" id="tSfx" aria-pressed="true">Effects: On</button><button class="ghost" id="tBig" aria-pressed="false">Bigger units: Off</button><button class="ghost" id="bSettings2">Settings</button></div>
         <p class="mpStatus" id="pauseNote" hidden>Multiplayer games keep running while this menu is open.</p>
         <div class="row" id="voiceCtl" hidden><label class="lab2" for="vVol" style="margin:0">Voice volume</label><input type="range" id="vVol" min="0" max="100" value="100"><button class="ghost" id="vLeave">Leave voice chat</button></div>
         <div class="row"><button class="go" id="bResume">Resume</button><button class="ghost" id="bSaveQuit">Save and quit</button><button class="ghost" id="bRestart">New game</button></div>
@@ -388,6 +397,31 @@ button:focus-visible{outline:2px solid var(--you);outline-offset:2px}
       </div>
     </div>
     <div id="tut" hidden><div class="sub" id="tutStep"></div><p id="tutText"></p><div class="row"><button class="ghost" id="tutSkip">End tutorial</button></div></div>
+
+    <div class="ov" id="ovSet" hidden>
+      <div class="card wide">
+        <h1 class="title" style="font-size:clamp(30px,5vw,44px)">Settings</h1>
+        <div class="lab2">Display</div>
+        <div class="setgrid">
+          <span>Fullscreen</span><div class="seg small" id="sFs"><button type="button" data-v="0" aria-pressed="true"><b>Off</b></button><button type="button" data-v="1" aria-pressed="false"><b>On</b></button></div>
+          <span id="sWinLab">Window size</span><div class="seg small" id="sWin"><button type="button" data-v="1280x720"><b>1280×720</b></button><button type="button" data-v="1600x900"><b>1600×900</b></button><button type="button" data-v="1920x1080"><b>1920×1080</b></button></div>
+          <span>Graphics</span><div class="seg small" id="sQ"><button type="button" data-v="high" aria-pressed="true"><b>High</b></button><button type="button" data-v="low" aria-pressed="false"><b>Low</b></button></div>
+          <span>Bigger units</span><div class="seg small" id="sBig"><button type="button" data-v="0"><b>Off</b></button><button type="button" data-v="1"><b>On</b></button></div>
+        </div>
+        <p class="mpStatus" style="margin-top:-8px">Low graphics turns off pedestrians, traffic, smoke, sparks and night lighting for older computers.</p>
+        <div class="lab2">Audio</div>
+        <div class="setgrid">
+          <label for="vMaster">Master</label><input type="range" id="vMaster" min="0" max="100" class="rng">
+          <label for="vMusic">Music</label><input type="range" id="vMusic" min="0" max="100" class="rng">
+          <label for="vSfx">Effects</label><input type="range" id="vSfx" min="0" max="100" class="rng">
+          <label for="vVoice">Voice chat</label><input type="range" id="vVoice" min="0" max="100" class="rng">
+        </div>
+        <div class="lab2">Controls</div>
+        <p class="mpStatus" style="margin-top:-8px">Click a key, then press the new one. Esc cancels. Taking a key that's already used swaps the two.</p>
+        <div class="keygrid" id="keyGrid"></div>
+        <div class="row"><button class="go" id="setDone">Done</button><button class="ghost" id="setReset">Reset controls</button></div>
+      </div>
+    </div>
 
     <div class="ov" id="ovEnd" hidden>
       <div class="card end">
@@ -416,6 +450,10 @@ button:focus-visible{outline:2px solid var(--you);outline-offset:2px}
 <script>
 (() => {
 'use strict';
+// storage: JSON files in the app's data folder on the desktop build, browser storage on the web
+const DESK=typeof window!=='undefined'&&window.bbbDesktop?window.bbbDesktop:null;
+const DS=DESK&&DESK.store?{getItem:k=>DESK.store.get(k),setItem:(k,v)=>DESK.store.set(k,String(v)),removeItem:k=>DESK.store.del(k)}
+  :{getItem:k=>localStorage.getItem(k),setItem:(k,v)=>localStorage.setItem(k,v),removeItem:k=>localStorage.removeItem(k)};
 /* ---------- constants ---------- */
 const T=32, BS=12, TAU=Math.PI*2;
 const SIZES={small:{bx:6,by:5,mids:6},medium:{bx:8,by:6,mids:10},large:{bx:10,by:8,mids:16}};
@@ -555,8 +593,17 @@ let mode=null, hoverTip='', cam={x:0,y:0,z:1}, VW=800, VH=600, dpr=1;
 let mapC=null, miniC=null, fogC=null, fogImg=null, visT=0, aiT=0, uiT=0, mmT=0, chkT=0;
 let attackedT={}, ST=[], ME=0, NET=null, SEED=0;
 let modeT=0, turf=[], turfT=0, tlT=0, EV=[], TUT=null, parts=[], peds=[], cars=[], saveT=0;
-const SET={big:false};
-try{const b=localStorage.getItem('bbb-big'); SET.big=b===null?(typeof matchMedia==='function'&&matchMedia('(pointer:coarse)').matches):b==='1';}catch(_){}
+const KEYDEF={camUp:'w',camLeft:'a',camDown:'s',camRight:'d',attack:'q',stop:'e',slot1:'z',slot2:'x',slot3:'c',slot4:'v',slot5:'b',research:'y',laylow:'g',comeout:'h',power:'r',army:'f',idle:'.',home:' ',pause:'p',mute:'m',voice:'t'};
+const KEYNAMES={camUp:'Camera up',camLeft:'Camera left',camDown:'Camera down',camRight:'Camera right',attack:'Attack-move',stop:'Stop',slot1:'Build / train 1',slot2:'Build / train 2',slot3:'Build / train 3',slot4:'Build / train 4',slot5:'Build 5 / upgrade',research:'Research',laylow:'Lay low',comeout:'Come out',power:'Gang power',army:'Select fighters',idle:'Idle runner',home:'Jump to Hideout',pause:'Pause',mute:'Mute',voice:'Voice chat'};
+// command-card letters the game uses internally, and the action each one belongs to
+const CARDACT={Q:'attack',E:'stop',Z:'slot1',X:'slot2',C:'slot3',V:'slot4',B:'slot5',Y:'research',G:'laylow',H:'comeout',R:'power'};
+const SET={big:false,q:'high',fs:false,win:'1600x900',vol:{master:90,music:80,sfx:85},keys:Object.assign({},KEYDEF)};
+try{const j=JSON.parse(DS.getItem('bbb-settings')||'null'); if(j){Object.assign(SET,j); SET.vol=Object.assign({master:90,music:80,sfx:85},j.vol||{}); SET.keys=Object.assign({},KEYDEF,j.keys||{});}
+  else {const b=DS.getItem('bbb-big'); SET.big=b===null?(typeof matchMedia==='function'&&matchMedia('(pointer:coarse)').matches):b==='1';}}catch(_){}
+function saveSettings(){try{DS.setItem('bbb-settings',JSON.stringify(SET));}catch(_){}}
+const LOWQ=()=>SET.q==='low';
+const keyLabel=k=>k===' '?'Space':k===undefined?'':k.length===1?k.toUpperCase():k.replace(/^Arrow/,'');
+const actOf=k=>{for(const a in SET.keys)if(SET.keys[a]===k)return a; return null;};
 
 /* ---------- map ---------- */
 function fillT(x,y,w,h,t){for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)tiles[ix(i,j)]=t;}
@@ -1421,7 +1468,7 @@ const sideName=g=>TEAMS?'Team '+'ABC'[P[g[0]].team]:C(g[0]).name;
 function claimable(){return turf.filter(t=>!t.x).length;}
 function modeSetup(){
   MS={h:{},k:{},hold:{},wave:0,next:120,best:0};
-  try{MS.best=+(localStorage.getItem('bbb-surv-best')||0)||0;}catch(_){}
+  try{MS.best=+(DS.getItem('bbb-surv-best')||0)||0;}catch(_){}
   if(MODE==='survival')notify(ME,'Survival: the first police wave hits in 2 minutes. Build up fast','cop');
   if(MODE==='koth'){let best=-1,bd=1e9; const cx=(NBX-1)/2, cy=(NBY-1)/2; for(let i=0;i<turf.length;i++){if(turf[i].x)continue; const d=(i%NBX-cx)**2+(Math.floor(i/NBX)-cy)**2; if(d<bd){bd=d;best=i;}} MS.hill=best;}
   if(MODE==='regicide')for(const o of OWN){const h=ents.find(e=>e.owner===o&&e.type==='hideout'); if(!h)continue; const a=approachTile(h,WW/2,WH/2)||[h.x,h.y+90]; const b=mkUnit('boss',o,a[0],a[1]); P[o].boss=b.id;}
@@ -1748,7 +1795,7 @@ function showEnd(w,st){
     $('#bAgain').textContent=won&&!last?'Next mission':'Back to the campaign'; afterCamp=won&&!last?'next':'list';}
   if(TUT){$('#endTitle').textContent=won?'Tutorial complete':'Tutorial over'; $('#endText').textContent=won?'You ran a full operation: cash, a Clubhouse, a crew, turf and a takedown. Start a real match from Single player, and try a bigger map or more gangs.':'Your crew got shut down. Run the tutorial again, or jump into a real match.'; $('#bAgain').textContent='Back to the menu'; endTut();}
   if(!special&&MODE!=='conquest'&&(endWhy!=='wipe'||MODE==='survival')){const fm=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
-    if(MODE==='survival'){let best=0; try{best=+(localStorage.getItem('bbb-surv-best')||0);}catch(_){} const nb=time>best; if(nb){try{localStorage.setItem('bbb-surv-best',String(Math.round(time)));}catch(_){}}
+    if(MODE==='survival'){let best=0; try{best=+(DS.getItem('bbb-surv-best')||0);}catch(_){} const nb=time>best; if(nb){try{DS.setItem('bbb-surv-best',String(Math.round(time)));}catch(_){}}
       $('#endTitle').textContent='Overrun'; $('#endText').textContent='You held out '+fm(time)+' against '+MS.wave+' police waves.'+(nb?' That is a new best.':' Your best is '+fm(best)+'.');}
     else {const how={turf:'held the city long enough',cash:'banked the target first',koth:'held the Hill',timed:'had the most points when time ran out',regicide:'took out every other Boss',heist:'pulled the most big scores',sandbox:'cleared the city'}[MODE]||'';
       const who=w<0?'':(TEAMS?'Team '+'ABC'[P[w].team]:C(w).name);
@@ -2320,7 +2367,7 @@ function render(){
   const z=cam.z, vx0=cam.x, vy0=cam.y, vx1=cam.x+VW/z, vy1=cam.y+VH/z;
   const inV=(x,y,m,hgt)=>{const sx=IX(x,y), sy=IY(x,y); return sx>vx0-m&&sx<vx1+m&&sy>vy0-m&&sy-hgt<vy1+m;};
   const boxIn=(o,H)=>IX(o.x1,o.y0)>vx0-20&&IX(o.x0,o.y1)<vx1+20&&IY(o.x1,o.y1)>vy0-20&&IY(o.x0,o.y0)-H-40<vy1;
-  const bo=EVT&&EVT.k==='blackout', dk=state==='menu'?.45:bo?Math.max(.8,darkness()):darkness(), lights=dk>.03?[]:null;
+  const bo=EVT&&EVT.k==='blackout', dk=LOWQ()?0:state==='menu'?.45:bo?Math.max(.8,darkness()):darkness(), lights=dk>.03?[]:null;
   ctx.setTransform(dpr*z,0,0,dpr*z,-cam.x*z*dpr,-cam.y*z*dpr);
   // ground: map, decals, turf and fog are cached in a screen-sized layer, redrawn when the camera moves or 5 times a second
   if(!SKIPR.ground){
@@ -2378,8 +2425,8 @@ function render(){
       ctx.fillStyle='#14161a'; ctx.font='bold 8px Bungee, Impact, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('HILL',x+15,y-57);}});
       if(lights)lights.push([hx,hy,40,90,.9]);}}
   for(const p of paraders){if(!inV(p.x,p.y,40,40)||tileVis(p.x,p.y)!==2)continue; objs.push({x:p.x,y:p.y,draw:()=>p.flt?drawFloat(p):drawPed(p,now)});}
-  for(const p of peds){if(!inV(p.x,p.y,30,30)||tileVis(p.x,p.y)!==2||occ[ix(clamp(tAt(p.x),0,MW-1),clamp(tAt(p.y),0,MH-1))])continue; objs.push({x:p.x,y:p.y,draw:()=>drawPed(p,now)});}
-  for(const c of cars){const [x,y,f]=carXY(c); if(!inV(x,y,40,30)||tileVis(x,y)!==2)continue; c.x=x; c.y=y; c.face=f; objs.push({x,y,draw:()=>drawVehicle({type:'civ',r:c.r,face:f,civ:1},{dark:c.col,main:shade(c.col,1.18)},IX(x,y),IY(x,y),now)});
+  if(!LOWQ())for(const p of peds){if(!inV(p.x,p.y,30,30)||tileVis(p.x,p.y)!==2||occ[ix(clamp(tAt(p.x),0,MW-1),clamp(tAt(p.y),0,MH-1))])continue; objs.push({x:p.x,y:p.y,draw:()=>drawPed(p,now)});}
+  if(!LOWQ())for(const c of cars){const [x,y,f]=carXY(c); if(!inV(x,y,40,30)||tileVis(x,y)!==2)continue; c.x=x; c.y=y; c.face=f; objs.push({x,y,draw:()=>drawVehicle({type:'civ',r:c.r,face:f,civ:1},{dark:c.col,main:shade(c.col,1.18)},IX(x,y),IY(x,y),now)});
     if(lights)lights.push([x+Math.cos(f)*38,y+Math.sin(f)*38,0,46,.8]);}
   const ovl=[];
   for(const e of ents){
@@ -2470,8 +2517,8 @@ function renderMini(){
 
 /* ---------- audio (all generated in code) ---------- */
 const AU={ctx:null,master:null,sfx:null,mus:null,noise:null,last:{},on:{sfx:true,mus:true},next:0,step:0,hot:-99,paused:false,burst:0,burstT:0};
-try{const sv=JSON.parse(localStorage.getItem('bbb-audio')||'null'); if(sv){AU.on.sfx=sv.sfx!==false;AU.on.mus=sv.mus!==false;}}catch(_){}
-function auSave(){try{localStorage.setItem('bbb-audio',JSON.stringify(AU.on));}catch(_){}}
+try{const sv=JSON.parse(DS.getItem('bbb-audio')||'null'); if(sv){AU.on.sfx=sv.sfx!==false;AU.on.mus=sv.mus!==false;}}catch(_){}
+function auSave(){try{DS.setItem('bbb-audio',JSON.stringify(AU.on));}catch(_){}}
 function auInit(){
   if(AU.ctx){if(AU.ctx.state==='suspended'&&AU.ctx.resume)AU.ctx.resume().catch(()=>{});return;}
   const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
@@ -2486,8 +2533,9 @@ function auInit(){
 }
 function auLevels(){
   if(!AU.ctx)return; const t=AU.ctx.currentTime;
-  AU.sfx.gain.setTargetAtTime(AU.on.sfx?.75:0,t,.05);
-  AU.mus.gain.setTargetAtTime(AU.on.mus?(AU.paused?.08:.32):0,t,.15);
+  AU.master.gain.setTargetAtTime(.9*SET.vol.master/90,t,.05);
+  AU.sfx.gain.setTargetAtTime(AU.on.sfx?.75*SET.vol.sfx/85:0,t,.05);
+  AU.mus.gain.setTargetAtTime(AU.on.mus?(AU.paused?.08:.32)*SET.vol.music/80:0,t,.15);
 }
 function env(g,t,a,peak,d){g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak),t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+d);}
 function nz(t,dur,freq,q,vol,type,dest){
@@ -2630,10 +2678,10 @@ function cmdDefs(){
 let curDefs=[], cmdSig='', cardPage='main';
 function renderCmds(){
   curDefs=cmdDefs();
-  const sig=curDefs.map(d=>d.k+d.nm+(d.sub||'')+(d.lock?1:0)+(d.poor?1:0)+(d.on?1:0)).join('|');
+  const sig=JSON.stringify(SET.keys).length+curDefs.map(d=>d.k+d.nm+(d.sub||'')+(d.lock?1:0)+(d.poor?1:0)+(d.on?1:0)).join('|');
   if(sig===cmdSig)return; cmdSig=sig;
   const el=$('#cmds'); let h='';
-  curDefs.forEach((d,i)=>{h+=`<button class="cb${d.poor?' poor':''}${d.lock?' lock':''}${d.on?' on':''}" data-i="${i}" title="${d.tip}"><span class="hk">${d.k}</span><span class="nm">${d.nm}</span><span class="co">${d.cost?'$'+d.cost:(d.sub||'')}</span></button>`;});
+  curDefs.forEach((d,i)=>{h+=`<button class="cb${d.poor?' poor':''}${d.lock?' lock':''}${d.on?' on':''}" data-i="${i}" title="${d.tip}"><span class="hk">${esc(keyLabel(SET.keys[CARDACT[d.k]]||d.k.toLowerCase()))}</span><span class="nm">${d.nm}</span><span class="co">${d.cost?'$'+d.cost:(d.sub||'')}</span></button>`;});
   for(let i=curDefs.length;i<8;i++)h+='<div class="slot"></div>';
   el.innerHTML=h;
 }
@@ -2907,41 +2955,44 @@ $('#bArmy').addEventListener('click',()=>{if(state==='play')selectArmy();});
 $('#bIdle').addEventListener('click',()=>{if(state==='play')selectIdle();});
 $('#bPause').addEventListener('click',togglePause);
 function togglePause(){$('#bSaveQuit').hidden=!!(NET||TUT||CAMP); if(NET&&NET.started){const ov=$('#ovPause'); ov.hidden=!ov.hidden; $('#pauseNote').hidden=false; renderVoiceUI(); $('#bRestart').textContent='Leave game'; return;} $('#pauseNote').hidden=true; $('#bRestart').textContent=TUT?'End tutorial':CAMP?'Quit mission':'New game'; if(state==='play')saveGame(); if(state==='play'){state='pause';$('#ovPause').hidden=false;}else if(state==='pause'){state='play';$('#ovPause').hidden=true;} AU.paused=state==='pause'; auLevels(); renderSoundUI();}
+const normKey=k=>k.length===1?k.toLowerCase():k;
 addEventListener('keydown',ev=>{
   if(ev.target&&/^(INPUT|SELECT|TEXTAREA)$/.test(ev.target.tagName))return;
-  const k=ev.key;
+  if(keyWait)return;
+  const k=ev.key, nk=normKey(k), act=ev.ctrlKey||ev.metaKey||ev.altKey?null:actOf(nk);
+  if(k==='F11'){ev.preventDefault(); setFullscreen(!isFs()); return;}
   if(k.startsWith('Arrow')){keys[k]=true;ev.preventDefault();return;}
-  if(!ev.ctrlKey&&!ev.metaKey&&!ev.altKey&&/^Key[WASD]$/.test(ev.code)){keys[ev.code]=true;ev.preventDefault();return;}
-  if(state==='pause'&&(k==='Escape'||k==='p'||k==='P')){togglePause();return;}
+  if(act&&act.startsWith('cam')){keys['cam:'+act]=true;ev.preventDefault();return;}
+  if(state==='pause'&&(k==='Escape'||act==='pause')){if(!$('#ovSet').hidden)return; togglePause();return;}
   if(state!=='play')return;
   if(k==='Escape'){if(mode){setMode(null);renderUI(true);}else if(cardPage!=='main'){cardPage='main';renderUI(true);}else togglePause();return;}
-  if(k==='p'||k==='P'){togglePause();return;}
-  if(k==='m'||k==='M'){toggleAllSound();return;}
-  if((k==='t'||k==='T')&&NET){voiceButton();return;}
-  if(k===' '){ev.preventDefault();const h=ents.find(e=>e.owner===ME&&e.kind==='bld'&&e.type==='hideout')||ents.find(e=>e.owner===ME&&e.kind==='bld');if(h){centerOn(h.x,h.y);}return;}
-  if(k==='f'||k==='F'){selectArmy();return;}
-  if(k==='.'){selectIdle();return;}
+  if(act==='pause'){togglePause();return;}
+  if(act==='mute'){toggleAllSound();return;}
+  if(act==='voice'&&NET){voiceButton();return;}
+  if(act==='home'){ev.preventDefault();const h=ents.find(e=>e.owner===ME&&e.kind==='bld'&&e.type==='hideout')||ents.find(e=>e.owner===ME&&e.kind==='bld');if(h){centerOn(h.x,h.y);}return;}
+  if(act==='army'){selectArmy();return;}
+  if(act==='idle'){selectIdle();return;}
   if(/^[1-5]$/.test(k)){
     if(ev.ctrlKey||ev.metaKey){ev.preventDefault();groups[k]=selOwn().slice();toast('Group '+k+' saved');return;}
     const g=(groups[k]||[]).filter(alive); if(g.length){const again=sel.length===g.length&&g.every(e=>sel.includes(e)); setSel(g); if(again){const x=g.reduce((a,e)=>a+e.x,0)/g.length,y=g.reduce((a,e)=>a+e.y,0)/g.length;centerOn(x,y);}}
     return;
   }
-  const up=k.toUpperCase(); const d=curDefs.find(c=>c.k===up);
-  if(d&&!ev.ctrlKey&&!ev.metaKey){ev.preventDefault();d.fn();renderUI(true);}
+  const d=act?curDefs.find(c=>CARDACT[c.k]===act):null;
+  if(d){ev.preventDefault();d.fn();renderUI(true);}
 });
-addEventListener('keyup',ev=>{keys[ev.key]=false;keys[ev.code]=false;});
+addEventListener('keyup',ev=>{keys[ev.key]=false;keys[ev.code]=false; const a=actOf(normKey(ev.key)); if(a)keys['cam:'+a]=false;});
 addEventListener('keydown',ev=>{if(ev.key==='Shift')keys.Shift=true;},{capture:true});
 addEventListener('blur',()=>{keys={};});
 function camMove(dt){
   const sp=760*dt/cam.z; let dx=0,dy=0;
-  if(keys.ArrowLeft||keys.KeyA)dx-=sp; if(keys.ArrowRight||keys.KeyD)dx+=sp; if(keys.ArrowUp||keys.KeyW)dy-=sp; if(keys.ArrowDown||keys.KeyS)dy+=sp;
+  if(keys.ArrowLeft||keys['cam:camLeft'])dx-=sp; if(keys.ArrowRight||keys['cam:camRight'])dx+=sp; if(keys.ArrowUp||keys['cam:camUp'])dy-=sp; if(keys.ArrowDown||keys['cam:camDown'])dy+=sp;
   if(mouse.in&&mouse.type==='mouse'&&!drag&&!mmDrag){const m=14; if(mouse.x<m)dx-=sp; if(mouse.x>VW-m)dx+=sp; if(mouse.y<m)dy-=sp; if(mouse.y>VH-m)dy+=sp;}
   if(dx||dy){cam.x+=dx;cam.y+=dy;clampCam();}
 }
 
 /* ---------- sizing + loop ---------- */
 function resize(){
-  const r=stage.getBoundingClientRect(); dpr=Math.min(2,window.devicePixelRatio||1);
+  const r=stage.getBoundingClientRect(); dpr=Math.min(LOWQ()?1:2,window.devicePixelRatio||1);
   VW=Math.max(1,r.width); VH=Math.max(1,r.height);
   cv.width=Math.round(VW*dpr); cv.height=Math.round(VH*dpr);
   const mr=mm.parentElement.getBoundingClientRect(); const mw=Math.max(40,mr.width), mh=Math.max(34,mr.height);
@@ -2954,7 +3005,7 @@ function frame(now){
   const dt=Math.min(.05,(now-last)/1000); last=now;
   if(state==='menu'&&!RM){cam.x+=dt*14; if(cam.x>WW-VW/cam.z)cam.x=-WH; clampCam();}
   if(state==='play'){camMove(dt); if(NET&&NET.role==='client')clientTick(dt); else {update(dt); netHostTick(dt);}}
-  if(state==='play'||state==='menu'){lifeTick(dt); partTick(dt); paradeTick(dt);}
+  if((state==='play'||state==='menu')&&!LOWQ()){lifeTick(dt); partTick(dt); paradeTick(dt);} else if(LOWQ()&&parts.length)parts.length=0;
   if(state==='play'&&!NET&&!TUT){saveT-=dt; if(saveT<=0){saveT=30; saveGame();}}
   render(); auTick(); voiceTick(dt);
   mmT-=dt; if(mmT<=0){mmT=.1;renderMini();}
@@ -2999,9 +3050,53 @@ $('#bTut').addEventListener('click',startTutorial);
 $('#bContinue').addEventListener('click',()=>{loadGame();});
 $('#tutSkip').addEventListener('click',()=>{if(CAMP){endCamp(false); afterCamp=false; state='menu'; hideOverlays(); renderCamp(); $('#ovCamp').hidden=false; return;} endTut(); afterTut=false; state='menu'; hideOverlays(); $('#ovStart').hidden=false; refreshContinue();});
 $('#bSaveQuit').addEventListener('click',()=>{const ok=saveGame(); $('#ovPause').hidden=true; state='menu'; AU.paused=false; auLevels(); $('#ovStart').hidden=false; refreshContinue(); toast(ok?'Game saved. Continue from the main menu':'Could not save in this browser',ok?'':'bad');});
+/* ---------- settings screen ---------- */
+let keyWait=null, setFrom='start';
+const isFs=()=>DESK&&DESK.isFullscreen?!!DESK.isFullscreen():!!(typeof document!=='undefined'&&document.fullscreenElement);
+function setFullscreen(on){
+  SET.fs=!!on; saveSettings();
+  if(DESK&&DESK.setFullscreen)DESK.setFullscreen(!!on);
+  else {try{if(on&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{}); else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{});}catch(_){}}
+  setTimeout(()=>{renderSettings();resize();},250);
+}
+function applyWindow(){if(DESK&&DESK.setSize&&!SET.fs){const [w,h]=SET.win.split('x').map(Number); DESK.setSize(w,h);}}
+function pressSeg(id,v){for(const b of $(id).children)b.setAttribute('aria-pressed',b.dataset.v===String(v)?'true':'false');}
+function renderKeyHints(){
+  if(typeof document==='undefined'||!document.querySelectorAll)return;
+  for(const el of document.querySelectorAll('[data-act]'))el.textContent=keyLabel(SET.keys[el.dataset.act]);
+  for(const el of document.querySelectorAll('[data-acts]'))el.textContent=el.dataset.acts.split(' ').map(a=>keyLabel(SET.keys[a])).join(' ');
+}
+function renderSettings(){
+  pressSeg('#sFs',isFs()?'1':'0'); pressSeg('#sWin',SET.win); pressSeg('#sQ',SET.q); pressSeg('#sBig',SET.big?'1':'0');
+  $('#sWin').hidden=!DESK; $('#sWinLab').hidden=!DESK;
+  $('#vMaster').value=SET.vol.master; $('#vMusic').value=SET.vol.music; $('#vSfx').value=SET.vol.sfx; $('#vVoice').value=Math.round(VOICE.vol*100);
+  $('#keyGrid').innerHTML=Object.keys(KEYDEF).map(a=>`<div class="krow"><span>${KEYNAMES[a]}</span><button type="button" class="kbtn${keyWait===a?' wait':''}" data-k="${a}">${keyWait===a?'Press a key…':esc(keyLabel(SET.keys[a]))}</button></div>`).join('');
+}
+function openSettings(from){setFrom=from; keyWait=null; if(from==='start')$('#ovStart').hidden=true; else $('#ovPause').hidden=true; renderSettings(); $('#ovSet').hidden=false;}
+function closeSettings(){keyWait=null; $('#ovSet').hidden=true; saveSettings(); renderKeyHints(); renderUI(true); if(setFrom==='start')$('#ovStart').hidden=false; else $('#ovPause').hidden=false;}
+$('#bSettings').addEventListener('click',()=>openSettings('start'));
+$('#bSettings2').addEventListener('click',()=>openSettings('pause'));
+$('#setDone').addEventListener('click',closeSettings);
+$('#setReset').addEventListener('click',()=>{SET.keys=Object.assign({},KEYDEF); saveSettings(); renderSettings(); renderKeyHints();});
+$('#sFs').addEventListener('click',ev=>{const b=ev.target.closest('[data-v]'); if(b)setFullscreen(b.dataset.v==='1');});
+$('#sWin').addEventListener('click',ev=>{const b=ev.target.closest('[data-v]'); if(!b)return; SET.win=b.dataset.v; saveSettings(); if(isFs())setFullscreen(false); applyWindow(); renderSettings();});
+$('#sQ').addEventListener('click',ev=>{const b=ev.target.closest('[data-v]'); if(!b)return; SET.q=b.dataset.v; saveSettings(); resize(); gKey=''; renderSettings();});
+$('#sBig').addEventListener('click',ev=>{const b=ev.target.closest('[data-v]'); if(!b)return; SET.big=b.dataset.v==='1'; saveSettings(); renderBig(); renderSettings();});
+for(const [id,k] of [['#vMaster','master'],['#vMusic','music'],['#vSfx','sfx']])$(id).addEventListener('input',ev=>{SET.vol[k]=+ev.target.value; auInit(); auLevels(); saveSettings();});
+$('#vVoice').addEventListener('input',ev=>{VOICE.vol=(+ev.target.value)/100; for(const k in VOICE.in)VOICE.in[k].a.volume=VOICE.vol; try{DS.setItem('bbb-vvol',String(+ev.target.value));}catch(_){} const vv=$('#vVol'); if(vv)vv.value=ev.target.value;});
+$('#keyGrid').addEventListener('click',ev=>{const b=ev.target.closest('[data-k]'); if(!b)return; keyWait=b.dataset.k; renderSettings();});
+addEventListener('keydown',ev=>{
+  if(!keyWait)return; ev.preventDefault(); ev.stopPropagation();
+  const k=normKey(ev.key);
+  if(k!=='Escape'&&!/^(Shift|Control|Alt|Meta|Tab|Enter|F11|CapsLock)$/.test(k)&&!/^[1-5]$/.test(k)&&!k.startsWith('Arrow')){
+    const other=actOf(k); if(other&&other!==keyWait)SET.keys[other]=SET.keys[keyWait]; SET.keys[keyWait]=k; saveSettings();}
+  keyWait=null; renderSettings(); renderKeyHints();
+},{capture:true});
+if(DESK&&DESK.quit){$('#bQuit').hidden=false; $('#bQuit').addEventListener('click',()=>{try{if(state==='play'||state==='pause')saveGame();}catch(_){} DESK.quit();});}
+if(DESK&&SET.fs&&DESK.setFullscreen)DESK.setFullscreen(true);
 function renderBig(){const b=$('#tBig'); if(b){b.textContent='Bigger units: '+(SET.big?'On':'Off'); b.setAttribute('aria-pressed',SET.big?'true':'false');}}
-$('#tBig').addEventListener('click',()=>{SET.big=!SET.big; try{localStorage.setItem('bbb-big',SET.big?'1':'0');}catch(_){} renderBig();});
-renderBig(); refreshContinue();
+$('#tBig').addEventListener('click',()=>{SET.big=!SET.big; saveSettings(); renderBig();});
+renderBig(); refreshContinue(); renderKeyHints();
 $('#chartPick').addEventListener('click',ev=>{const b=ev.target.closest('[data-k]'); if(!b)return; chartK=+b.dataset.k; for(const x of $('#chartPick').children)x.setAttribute('aria-pressed',x===b?'true':'false'); drawEndChart();});
 
 /* ---------- save and resume (single player) ---------- */
@@ -3014,17 +3109,17 @@ function saveGame(){
       turf:turf.map(t=>[t.o,Math.round(t.p*1000)/1000]), decals:decals.filter(d=>d.l===undefined||d.l>2),
       exp:Array.from(exp).join(''), ents:ents.filter(e=>!e.dead),
       groups:Object.fromEntries(Object.entries(groups).map(([k,v])=>[k,v.filter(alive).map(e=>e.id)])), cam:{x:cam.x,y:cam.y,z:cam.z}};
-    localStorage.setItem(SAVE_KEY,JSON.stringify(data,(k,v)=>SKIPK.has(k)?undefined:v));
-    localStorage.setItem(HEAD_KEY,JSON.stringify({gang:P[0].gang,time:Math.round(time),size:mapSize,n:OWN.length,layout,mode:MODE,saved:Date.now()}));
+    DS.setItem(SAVE_KEY,JSON.stringify(data,(k,v)=>SKIPK.has(k)?undefined:v));
+    DS.setItem(HEAD_KEY,JSON.stringify({gang:P[0].gang,time:Math.round(time),size:mapSize,n:OWN.length,layout,mode:MODE,saved:Date.now()}));
     return true;
   }catch(_){return false;}
 }
-function clearSave(){if(NET)return; try{localStorage.removeItem(SAVE_KEY);localStorage.removeItem(HEAD_KEY);}catch(_){}}
-function saveHead(){try{return JSON.parse(localStorage.getItem(HEAD_KEY)||'null');}catch(_){return null;}}
+function clearSave(){if(NET)return; try{DS.removeItem(SAVE_KEY);DS.removeItem(HEAD_KEY);}catch(_){}}
+function saveHead(){try{return JSON.parse(DS.getItem(HEAD_KEY)||'null');}catch(_){return null;}}
 function refreshContinue(){const h=saveHead(), b=$('#bContinue'); if(!b)return; b.hidden=!h;
   if(h&&GANGS[h.gang])b.textContent='Continue · '+GANGS[h.gang].name+(h.mode&&h.mode!=='conquest'&&MODES[h.mode]?' · '+MODES[h.mode].name:'')+' · '+Math.floor(h.time/60)+':'+String(h.time%60).padStart(2,'0');}
 function loadGame(){
-  let d=null; try{d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');}catch(_){d=null;}
+  let d=null; try{d=JSON.parse(DS.getItem(SAVE_KEY)||'null');}catch(_){d=null;}
   if(!d||d.v!==1||!Array.isArray(d.ents)){toast('That save could not be loaded','bad'); clearSave(); refreshContinue(); return false;}
   leaveNet(); ME=0; hideOverlays(); resize();
   setMapSize(d.size); diff=d.diff; time=d.time; SEED=d.SEED; layout=LAYOUTS[d.layout]?d.layout:'classic';
@@ -3100,7 +3195,7 @@ const CAMPAIGN=[
   {name:'Kingpin',foes:['rails','harbor','iron','neon','silver'],size:'medium',layout:'mixed',diff:'normal',
     brief:'Every crew left in the city is gunning for Sixth Street. One gang walks away with it all.',obj:()=>'Be the last crew standing.'},
 ];
-let campDone=0; try{campDone=+(localStorage.getItem('bbb-camp')||0)||0;}catch(_){}
+let campDone=0; try{campDone=+(DS.getItem('bbb-camp')||0)||0;}catch(_){}
 function renderCamp(){
   $('#campList').innerHTML=CAMPAIGN.map((m,i)=>{const lock=i>campDone, done=i<campDone, g=GANGS[m.foes[0]];
     return `<button type="button" class="mis" data-m="${i}" ${lock?'disabled':''} style="--g:${m.foes.length>1?'#f2b632':g.main}"><span class="mn">${i+1}</span><b>${m.name}</b><span class="st">${done?'Done':lock?'Locked':'Play'}</span><p>${m.brief} <i>${LAYOUTS[m.layout]}, ${SIZES[m.size].bx}×${SIZES[m.size].by} blocks, ${m.foes.length>1?m.foes.length+' rival crews':'vs '+g.name}.</i></p></button>`;}).join('');
@@ -3127,7 +3222,7 @@ function campTick(dt){
 let afterCamp=false;
 function endCamp(won){
   if(!CAMP)return; const i=CAMP.i;
-  if(won&&i>=campDone){campDone=i+1; try{localStorage.setItem('bbb-camp',String(campDone));}catch(_){}}
+  if(won&&i>=campDone){campDone=i+1; try{DS.setItem('bbb-camp',String(campDone));}catch(_){}}
   CAMP=null; afterCamp=true; $('#tut').hidden=true; $('#tutSkip').textContent='End tutorial';
   return i;
 }
@@ -3141,7 +3236,7 @@ const ROOM_PREFIX='blockbyblock-', PUBLIC_URL='https://josephbuck90-hue.github.i
 const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function mpStatus(t){const el=$('#mpStatus'); if(el)el.textContent=t;}
 function roomCode(){const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c=''; for(let i=0;i<5;i++)c+=a[(Math.random()*a.length)|0]; return c;}
-function mpName(){const v=($('#mpName').value||'').trim().slice(0,16); if(!v){mpStatus('Enter your name first.'); $('#mpName').focus(); return '';} try{localStorage.setItem('bbb-name',v);}catch(_){} return v;}
+function mpName(){const v=($('#mpName').value||'').trim().slice(0,16); if(!v){mpStatus('Enter your name first.'); $('#mpName').focus(); return '';} try{DS.setItem('bbb-name',v);}catch(_){} return v;}
 function netErr(e){const t=e&&e.type; return t==='browser-incompatible'?'This browser can’t do peer-to-peer connections. Try Chrome, Edge, Firefox or Safari.':
   t==='network'||t==='server-error'||t==='socket-error'||t==='socket-closed'?'Can’t reach the matchmaking server. Check your internet connection and try again. If you’re playing inside Claude, use the public version instead: '+PUBLIC_URL:
   t==='peer-unavailable'?'No game found with that code.':'Connection problem ('+(t||'unknown')+'). Try again.';}
@@ -3371,7 +3466,7 @@ function renderLobby(){
     :'Waiting for the host to start the game.';
 }
 $('#bMP').addEventListener('click',()=>{hideOverlays(); $('#ovMP').hidden=false; $('#mpStart').hidden=false; $('#mpLobby').hidden=true; mpStatus('');
-  try{const nm=localStorage.getItem('bbb-name'); if(nm&&!$('#mpName').value)$('#mpName').value=nm;}catch(_){} });
+  try{const nm=DS.getItem('bbb-name'); if(nm&&!$('#mpName').value)$('#mpName').value=nm;}catch(_){} });
 $('#mpBack').addEventListener('click',()=>{leaveNet(); $('#ovMP').hidden=true; $('#ovStart').hidden=false;});
 $('#mpHost').addEventListener('click',hostGame);
 $('#mpJoin').addEventListener('click',joinGame);
@@ -3393,7 +3488,7 @@ $('#mpDiff').addEventListener('click',ev=>{const b=ev.target.closest('[data-d]')
 
 /* ---------- voice chat (peer-to-peer audio) ---------- */
 const VOICE={on:false,muted:false,stream:null,out:{},in:{},vol:1,meAn:null,meBuf:null,talk:{},t:0,joining:false};
-try{const v=+localStorage.getItem('bbb-vvol'); if(v>=0&&v<=100&&localStorage.getItem('bbb-vvol')!==null)VOICE.vol=v/100;}catch(_){}
+try{const v=+DS.getItem('bbb-vvol'); if(v>=0&&v<=100&&DS.getItem('bbb-vvol')!==null)VOICE.vol=v/100;}catch(_){}
 const rosterOthers=()=>MP.players.filter((q,i)=>i!==MP.you&&q.id);
 function voiceButton(){if(!VOICE.on)voiceJoin(); else voiceMute(!VOICE.muted);}
 async function voiceJoin(){
@@ -3470,7 +3565,7 @@ function renderVoiceUI(){
 $('#bVoice').addEventListener('click',voiceButton);
 $('#mpVoice').addEventListener('click',()=>{if(!VOICE.on)voiceJoin(); else voiceMute(!VOICE.muted);});
 $('#vLeave').addEventListener('click',()=>voiceLeave(false));
-$('#vVol').addEventListener('input',ev=>{VOICE.vol=(+ev.target.value)/100; for(const k in VOICE.in)VOICE.in[k].a.volume=VOICE.vol; try{localStorage.setItem('bbb-vvol',String(+ev.target.value));}catch(_){}});
+$('#vVol').addEventListener('input',ev=>{VOICE.vol=(+ev.target.value)/100; for(const k in VOICE.in)VOICE.in[k].a.volume=VOICE.vol; try{DS.setItem('bbb-vvol',String(+ev.target.value));}catch(_){}});
 
 // backdrop city behind the menu
 resize(); newGame('normal','sixth',5,'small'); state='menu'; P[0].out=true; updVision(); P[0].out=false; cam.z=.85; centerOn(WW*.45,WH*.5); renderUI(true);
