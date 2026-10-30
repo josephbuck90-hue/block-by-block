@@ -458,7 +458,7 @@ const C=o=>o===POL?POLC:o===NEU?NEUC:((P[o]&&GANGS[P[o].gang])||GANGS.sixth);
 const perk=o=>(P[o]&&GANGS[P[o].gang]&&GANGS[P[o].gang].perk)||{};
 let CORNERS=[], NEARS=[];
 const UT={
-  runner:  {name:'Runner',  hp:45, spd:72, dmg:3,  rng:12, cd:1.0, cost:50,  time:10,sight:6,sup:1,r:6, bm:.4, tip:'Collects cash from businesses and builds. Right-click a business to start collecting.'},
+  runner:  {name:'Runner',  hp:45, spd:72, dmg:3,  rng:12, cd:1.0, cost:50,  time:10,sight:6,sup:1,r:6, bm:.4, tip:'Collects cash from businesses and builds. Right-click a business to start collecting. Place more buildings while he is building and he adds them to his list, finishing every one before going back to collecting.'},
   thug:    {name:'Thug',    hp:100,spd:78, dmg:9,  rng:12, cd:.9,  cost:75,  time:13,sight:6,sup:1,r:8, bm:1.3,tip:'Cheap brawler with a bat. Hits buildings hard.'},
   shooter: {name:'Shooter', hp:60, spd:70, dmg:10, rng:150,cd:1.25,cost:110, time:16,sight:8,sup:1,r:7, bm:.5, tip:'Ranged gunman. Fragile, so keep him behind the Thugs.'},
   enforcer:{name:'Enforcer',hp:240,spd:56, dmg:24, rng:60, cd:1.6, cost:200, time:22,sight:7,sup:2,r:10,bm:1.5,tip:'Heavy with a shotgun. Tough and deadly up close.', req:'armory'},
@@ -1133,9 +1133,15 @@ function gatherStep(u,c,dt){
   }
   if(goNear(u,b,dt,12)){c.ph='col';c.tm=1.4;}
 }
+// a runner works through his whole build list before going back to collecting
+const buildingNow=u=>{if(!u.cmd||u.cmd.t!=='build')return false; const s=byId.get(u.cmd.site); return alive(s)&&!s.done;};
+function nextBuild(u){
+  while(u.bq&&u.bq.length){const id=u.bq.shift(), n=byId.get(id); if(alive(n)&&!n.done&&n.owner===u.owner){u.cmd={t:'build',site:id};u.path=null;u.repath=0;return;}}
+  u.bq=[]; u.cmd={t:'gather',biz:0,ph:'to'}; u.path=null;
+}
 function buildStep(u,c,dt){
   const s=byId.get(c.site);
-  if(!alive(s)||s.done){u.cmd={t:'gather',biz:0,ph:'to'};u.path=null;return;}
+  if(!alive(s)||s.done){nextBuild(u);return;}
   if(goNear(u,s,dt,12)){
     const d=BT[s.type], inc=dt/d.time*(SBX(s.owner)?4:1);
     s.prog=Math.min(1,s.prog+inc); s.hp=Math.min(s.maxhp,s.hp+s.maxhp*.9*inc);
@@ -2344,6 +2350,9 @@ function render(){
   }
   onGround(()=>{
     for(const b of sel){if(b.kind==='bld'&&b.rally&&b.owner===ME){ctx.strokeStyle=C(ME).main; ctx.lineWidth=2; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(b.x,b.y); ctx.lineTo(b.rally.x,b.rally.y); ctx.stroke(); ctx.setLineDash([]);}}
+    for(const u of sel){if(u.kind!=='unit'||u.type!=='runner'||u.owner!==ME||!u.cmd||u.cmd.t!=='build')continue; const chain=[u.cmd.site,...(u.bq||[])].map(id=>byId.get(id)).filter(e=>alive(e)&&!e.done); if(!chain.length)continue;
+      ctx.strokeStyle='#e9e3d6'; ctx.globalAlpha=.55; ctx.lineWidth=2; ctx.setLineDash([4,6]); ctx.beginPath(); ctx.moveTo(u.x,u.y); for(const e of chain)ctx.lineTo(e.x,e.y); ctx.stroke(); ctx.setLineDash([]);
+      ctx.globalAlpha=.9; chain.forEach((e,i)=>{ctx.fillStyle='#14161a'; ctx.beginPath(); ctx.arc(e.x,e.y,11,0,TAU); ctx.fill(); ctx.fillStyle='#e9e3d6'; ctx.font='bold 12px "JetBrains Mono", monospace'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(i+1),e.x,e.y+.5);}); ctx.globalAlpha=1;}
     for(const f of fx)if(f.t==='ring'){const a=clamp(f.l/f.m,0,1); ctx.strokeStyle=f.c; ctx.globalAlpha=a; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(f.x,f.y,6+a*12,0,TAU); ctx.stroke(); ctx.globalAlpha=1;}
     if(mode&&mode.t==='place'&&mode.tx!==undefined){const d=BT[mode.type], ok=canPlace(mode.type,mode.tx,mode.ty,ME,0);
       ctx.fillStyle=ok?'rgba(127,214,122,.3)':'rgba(255,91,58,.32)'; ctx.strokeStyle=ok?'#7fd67a':'#ff5b3a'; ctx.lineWidth=2;
@@ -2636,7 +2645,7 @@ function renderInfo(){
     const e=s.length===1?s[0]:f, col=C(e.owner);
     if(e.kind==='unit'){const d=UT[e.type];
       h=`<div class="sub" style="color:${col.main}">${col.name}</div><h2>${d.name}</h2>${hpBar(e)}
-      <div class="kv"><span>HP <b>${Math.ceil(e.hp)}/${e.maxhp}</b></span>${e.type==='snitch'?`<span>Cover <b>${Math.ceil(e.cover===undefined?100:e.cover)}%</b></span><span><b>${e.made?'Made. Running for home':'Undercover'}</b></span><span>`:'<span>'}Damage <b>${d.dmg}</b></span><span>Range <b>${d.rng>40?Math.round(d.rng/T*10)/10+' blk':'melee'}</b></span><span>Speed <b>${d.spd}</b></span>${e.carry?`<span>Carrying <b>$${e.carry}</b></span>`:''}${e.owner!==POL&&e.type!=='runner'?`<span>Rank <b>${RANK_NAMES[e.rank||0]}</b></span>`:''}${e.kills?`<span>Takedowns <b>${e.kills}</b></span>`:''}</div>
+      <div class="kv"><span>HP <b>${Math.ceil(e.hp)}/${e.maxhp}</b></span>${e.type==='snitch'?`<span>Cover <b>${Math.ceil(e.cover===undefined?100:e.cover)}%</b></span><span><b>${e.made?'Made. Running for home':'Undercover'}</b></span><span>`:'<span>'}Damage <b>${d.dmg}</b></span><span>Range <b>${d.rng>40?Math.round(d.rng/T*10)/10+' blk':'melee'}</b></span><span>Speed <b>${d.spd}</b></span>${e.carry?`<span>Carrying <b>$${e.carry}</b></span>`:''}${e.type==='runner'&&e.owner===ME&&buildingNow(e)?`<span>Build list <b>${1+(e.bq?e.bq.filter(id=>{const n=byId.get(id);return alive(n)&&!n.done;}).length:0)}</b></span>`:''}${e.owner!==POL&&e.type!=='runner'?`<span>Rank <b>${RANK_NAMES[e.rank||0]}</b></span>`:''}${e.kills?`<span>Takedowns <b>${e.kills}</b></span>`:''}</div>
       ${e.owner===ME&&d.tip?`<p>${d.tip}</p>`:''}`;}
     else {const d=BT[e.type];
       h=`<div class="sub" style="color:${col.main}">${col.name}</div><h2>${bname(e)}</h2>${hpBar(e)}`;
@@ -2685,16 +2694,21 @@ function applyCmd(o,m){
   const list=Array.isArray(m.ids)?m.ids.slice(0,300).map(own).filter(Boolean):[];
   const B=own(m.b);
   switch(m.c){
-    case 'smart': doSmart(o,list,+m.x||0,+m.y||0,m.tid?byId.get(m.tid):null); break;
-    case 'amove': {const us=list.filter(e=>e.kind==='unit'&&!e.inside); if(us.length)orderMove(us,+m.x||0,+m.y||0,'amove'); break;}
-    case 'stop': for(const u of list)if(u.kind==='unit'&&!u.inside){u.cmd={t:'idle'};u.path=null;} break;
+    case 'smart': doSmart(o,list,+m.x||0,+m.y||0,m.tid?byId.get(m.tid):null,!!m.q); break;
+    case 'amove': {const us=list.filter(e=>e.kind==='unit'&&!e.inside); for(const u of us)u.bq=[]; if(us.length)orderMove(us,+m.x||0,+m.y||0,'amove'); break;}
+    case 'stop': for(const u of list)if(u.kind==='unit'&&!u.inside){u.cmd={t:'idle'};u.path=null;u.bq=[];} break;
     case 'place': {
       const ty=m.type, d=BT[ty]; if(!d||ty==='hideout'||ty==='station'||!BUILD_KEYS.some(k=>k[1]===ty))break;
       if(d.req&&!hasDone(o,d.req)&&!SBX(o))break; if(P[o].cash<bcost(o,ty))break; if(!canPlace(ty,m.tx|0,m.ty|0,o,0))break;
       const rs=list.filter(e=>e.kind==='unit'&&e.type==='runner'&&!e.inside); if(!rs.length)break;
       const st=placeSite(ty,m.tx|0,m.ty|0,o);
-      rs.sort((a,b)=>Math.hypot(a.x-st.x,a.y-st.y)-Math.hypot(b.x-st.x,b.y-st.y));
-      const r=rs[0]; r.cmd={t:'build',site:st.id}; r.path=null; r.repath=0; break;}
+      // spread work: a free runner first, otherwise the one with the shortest build list; ties go to the closest
+      const load=u=>buildingNow(u)?1+(u.bq?u.bq.length:0):0;
+      rs.sort((a,b)=>load(a)-load(b)||Math.hypot(a.x-st.x,a.y-st.y)-Math.hypot(b.x-st.x,b.y-st.y));
+      const r=rs[0];
+      if(buildingNow(r)){(r.bq||(r.bq=[])).push(st.id);}
+      else {r.bq=[]; r.cmd={t:'build',site:st.id}; r.path=null; r.repath=0;}
+      break;}
     case 'train': if(B&&B.kind==='bld'&&trainsOf(B).includes(m.ty))train(B,m.ty); break;
     case 'cancel': if(B&&B.kind==='bld')cancelQ(B,m.i|0); break;
     case 'upgrade': if(B&&B.kind==='bld')upgrade(B); break;
@@ -2745,11 +2759,13 @@ function smartCommand(wx,wy){
   else if(t&&t.kind==='bld'&&t.owner===ME)ring=[t.x,t.y,C(ME).main];
   fx.push({t:'ring',x:ring[0],y:ring[1],c:ring[2],l:.4,m:.4});
   if(units.length&&t&&t.kind==='bld'&&t.owner===ME&&t.done&&garCap(t)&&!units.some(canHide)&&!units.some(u=>u.type==='runner'&&u.carry&&BT[t.type].drop)){toast("Vehicles and Snitches can't hide inside",'bad');return;}
-  issue({c:'smart',ids:own.map(e=>e.id),x:Math.round(wx),y:Math.round(wy),tid:t?t.id:0});
+  issue({c:'smart',ids:own.map(e=>e.id),x:Math.round(wx),y:Math.round(wy),tid:t?t.id:0,q:!!(keys.Shift)});
 }
-function doSmart(o,own,wx,wy,t){
+function doSmart(o,own,wx,wy,t,q){
   if(t&&!alive(t))t=null;
   const units=own.filter(e=>e.kind==='unit'&&!e.inside);
+  const keepList=t&&t.kind==='bld'&&t.owner===o&&!t.done;
+  if(!keepList)for(const u of units)u.bq=[];
   if(!units.length){ // rally
     for(const b of own){if(b.kind!=='bld')continue; b.rally={x:t&&t.kind==='unit'?t.x:wx,y:t&&t.kind==='unit'?t.y:wy,biz:t&&t.kind==='biz'?t.id:0,unit:t&&t.kind==='unit'&&t.owner===o?t.id:0,site:t&&t.kind==='bld'&&t.owner===o&&!t.done?t.id:0};}
     return;
@@ -2765,7 +2781,9 @@ function doSmart(o,own,wx,wy,t){
     if(others.length)orderMove(others,wx,wy,'move'); return;
   }
   if(t&&t.kind==='bld'&&t.owner===o&&!t.done&&runners.length){
-    for(const u of runners){u.cmd={t:'build',site:t.id};u.path=null;u.repath=0;}
+    for(const u of runners){
+      if(q&&buildingNow(u)){if(u.cmd.site!==t.id&&!(u.bq||[]).includes(t.id))(u.bq||(u.bq=[])).push(t.id);}
+      else {if(buildingNow(u)&&u.cmd.site!==t.id)(u.bq||(u.bq=[])).unshift(u.cmd.site); u.cmd={t:'build',site:t.id};u.path=null;u.repath=0;}}
     if(others.length)orderMove(others,wx,wy,'move'); return;
   }
   if(t&&t.kind==='bld'&&t.owner===o&&BT[t.type].drop&&runners.some(u=>u.carry)){
@@ -2911,6 +2929,7 @@ addEventListener('keydown',ev=>{
   if(d&&!ev.ctrlKey&&!ev.metaKey){ev.preventDefault();d.fn();renderUI(true);}
 });
 addEventListener('keyup',ev=>{keys[ev.key]=false;keys[ev.code]=false;});
+addEventListener('keydown',ev=>{if(ev.key==='Shift')keys.Shift=true;},{capture:true});
 addEventListener('blur',()=>{keys={};});
 function camMove(dt){
   const sp=760*dt/cam.z; let dx=0,dy=0;
@@ -3455,7 +3474,7 @@ $('#vVol').addEventListener('input',ev=>{VOICE.vol=(+ev.target.value)/100; for(c
 // backdrop city behind the menu
 resize(); newGame('normal','sixth',5,'small'); state='menu'; P[0].out=true; updVision(); P[0].out=false; cam.z=.85; centerOn(WW*.45,WH*.5); renderUI(true);
 requestAnimationFrame(frame);
-window.__bbb={get VOICE(){return VOICE;},voiceJoin,get ME(){return ME;},get NET(){return NET;},get MPs(){return MP;},get ents(){return ents;},get P(){return P;},get time(){return time;},update,newGame,smartCommand,setSel,selectArmy,orderMove,train,canPlace,placeSite,findSite,get state(){return state;},checkEnd,upgrade,get OWN(){return OWN;},get station(){return station;},UT,BT,setMode,tryPlace,get mode(){return mode;},mkUnit,kill,render,startEvent,saveGame,loadGame,startMission,startTutorial,usePower,get turf(){return turf;},get WW(){return WW;},get WH(){return WH;},get EVT(){return EVT;},get ST(){return ST;},get TUT(){return TUT;},get CAMP(){return CAMP;},setTime:t=>{time=t;},zoomAt:(x,y,z)=>{cam.z=z;centerOn(x,y);},turfCount,SKIPR,aiThink,setRules:(m,t,h,c)=>{MODE=m;TEAMS=t;HARD=h;COOP=!!c;},research,canResearch,orderMove2:orderMove,play:()=>{state='play';},get MS(){return MS;},get MODE(){return MODE;},pick:(x,y)=>{const e=pickAt(x,y);return e?[e.kind,e.type||e.name,e.owner]:null;},get AIs(){return AIs;}};
+window.__bbb={get VOICE(){return VOICE;},voiceJoin,get ME(){return ME;},get NET(){return NET;},get MPs(){return MP;},get ents(){return ents;},get P(){return P;},get time(){return time;},update,newGame,smartCommand,setSel,selectArmy,orderMove,train,canPlace,placeSite,findSite,get state(){return state;},checkEnd,upgrade,get OWN(){return OWN;},get station(){return station;},UT,BT,setMode,tryPlace,get mode(){return mode;},mkUnit,kill,render,startEvent,saveGame,loadGame,startMission,startTutorial,usePower,get turf(){return turf;},get WW(){return WW;},get WH(){return WH;},get EVT(){return EVT;},get ST(){return ST;},get TUT(){return TUT;},get CAMP(){return CAMP;},setTime:t=>{time=t;},zoomAt:(x,y,z)=>{cam.z=z;centerOn(x,y);},turfCount,SKIPR,aiThink,applyCmd,setRules:(m,t,h,c)=>{MODE=m;TEAMS=t;HARD=h;COOP=!!c;},research,canResearch,orderMove2:orderMove,play:()=>{state='play';},get MS(){return MS;},get MODE(){return MODE;},pick:(x,y)=>{const e=pickAt(x,y);return e?[e.kind,e.type||e.name,e.owner]:null;},get AIs(){return AIs;}};
 })();
 </script>
 
