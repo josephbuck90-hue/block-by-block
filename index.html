@@ -458,7 +458,7 @@ const C=o=>o===POL?POLC:o===NEU?NEUC:((P[o]&&GANGS[P[o].gang])||GANGS.sixth);
 const perk=o=>(P[o]&&GANGS[P[o].gang]&&GANGS[P[o].gang].perk)||{};
 let CORNERS=[], NEARS=[];
 const UT={
-  runner:  {name:'Runner',  hp:45, spd:72, dmg:3,  rng:12, cd:1.0, cost:50,  time:10,sight:6,sup:1,r:6, bm:.4, tip:'Collects cash from businesses and builds. Right-click a business to start collecting. Place more buildings while he is building and he adds them to his list, finishing every one before going back to collecting.'},
+  runner:  {name:'Runner',  hp:45, spd:72, dmg:3,  rng:12, cd:1.0, cost:50,  time:10,sight:6,sup:1,r:6, bm:.4, tip:'Collects cash from businesses and builds. Right-click a business to start collecting. Place a building with several Runners selected and they all build it together. Place more while they are building and they add them to their list, finishing every one before going back to collecting.'},
   thug:    {name:'Thug',    hp:100,spd:78, dmg:9,  rng:12, cd:.9,  cost:75,  time:13,sight:6,sup:1,r:8, bm:1.3,tip:'Cheap brawler with a bat. Hits buildings hard.'},
   shooter: {name:'Shooter', hp:60, spd:70, dmg:10, rng:150,cd:1.25,cost:110, time:16,sight:8,sup:1,r:7, bm:.5, tip:'Ranged gunman. Fragile, so keep him behind the Thugs.'},
   enforcer:{name:'Enforcer',hp:240,spd:56, dmg:24, rng:60, cd:1.6, cost:200, time:22,sight:7,sup:2,r:10,bm:1.5,tip:'Heavy with a shotgun. Tough and deadly up close.', req:'armory'},
@@ -1143,6 +1143,8 @@ function buildStep(u,c,dt){
   const s=byId.get(c.site);
   if(!alive(s)||s.done){nextBuild(u);return;}
   if(goNear(u,s,dt,12)){
+    // up to 5 runners can work one site at once; each adds full speed
+    if(s.bwt!==time){s.bwt=time; s.bw=0;} s.bw++; s.crew=s.bw; if(s.bw>5)return;
     const d=BT[s.type], inc=dt/d.time*(SBX(s.owner)?4:1);
     s.prog=Math.min(1,s.prog+inc); s.hp=Math.min(s.maxhp,s.hp+s.maxhp*.9*inc);
     turnTo(u,Math.atan2(s.y-u.y,s.x-u.x),.3);
@@ -2650,7 +2652,8 @@ function renderInfo(){
     else {const d=BT[e.type];
       h=`<div class="sub" style="color:${col.main}">${col.name}</div><h2>${bname(e)}</h2>${hpBar(e)}`;
       if(e.type==='stash'){const g=ents.filter(x=>!x.dead&&x.type==='guard'&&x.post===e.id).length; h+=`<p>${e.lvl>1?'Already raided. Nothing left.':g?`Guarded by <b>${g}</b>. Clear them out, then walk up to it to take <b>$800</b>.`:'Unguarded. Walk a crew member up to it to take <b>$800</b>.'}</p>`;}
-      else if(!e.done)h+=`<p>Under construction · <b>${Math.floor(e.prog*100)}%</b>. Runners build faster together.</p>`;
+      else if(!e.done){const n=ents.filter(u=>!u.dead&&u.owner===e.owner&&u.type==='runner'&&(NET&&NET.role==='client'?true:(u.cmd&&u.cmd.t==='build'&&u.cmd.site===e.id))&&edgeDist(u,e)<T*1.2).length, k=Math.min(5,n), left=k?Math.ceil((1-e.prog)*BT[e.type].time/k/(SBX(e.owner)?4:1)):0;
+        h+=`<p>Under construction · <b>${Math.floor(e.prog*100)}%</b>. ${k?`<b>${n}</b> ${n===1?'Runner':'Runners'} working, done in about <b>${left}s</b>.`:'Nobody is working on it.'} Each Runner adds full speed, up to 5. Right-click it with more Runners selected to help.</p>`;}
       else if(e.owner===ME&&e.queue.length){h+='<div class="queue">'+e.queue.map((q,i)=>`<button class="qi" data-q="${i}" title="Cancel and refund">${q==='@up'?'Upgr.':isTech(q)?(TECH[q.slice(3)]||{name:'Tech'}).name.split(' ')[0].slice(0,6):UT[q].name.slice(0,6)}${i===0?`<i style="width:${e.pt/qTime(e,q)*100}%"></i>`:''}</button>`).join('')+'</div>';}
       else if(e.owner===ME)h+=`<p>${d.tip}${d.trains?' Right-click to set a rally point: a spot, a business (Runners start collecting), a building site (Runners help build) or one of your fighters (new crew follow him).':''}</p>`;
       if(e.done&&garCap(e)&&e.owner===ME)h+=`<div class="kv"><span>Hiding <b>${e.gar.length}/${garCap(e)}</b></span>${heightBonus(e)?`<span>Height <b>+${Math.round(heightBonus(e)/T*10)/10} blk range</b></span>`:''}${e.gar.length?`<span>Fortified <b>${Math.round(Math.min(.55,.2+.05*e.gar.length)*100)}% less damage</b></span>`:'<span>Right-click with crew selected to hide them here</span>'}</div>`;
@@ -2702,12 +2705,10 @@ function applyCmd(o,m){
       if(d.req&&!hasDone(o,d.req)&&!SBX(o))break; if(P[o].cash<bcost(o,ty))break; if(!canPlace(ty,m.tx|0,m.ty|0,o,0))break;
       const rs=list.filter(e=>e.kind==='unit'&&e.type==='runner'&&!e.inside); if(!rs.length)break;
       const st=placeSite(ty,m.tx|0,m.ty|0,o);
-      // spread work: a free runner first, otherwise the one with the shortest build list; ties go to the closest
-      const load=u=>buildingNow(u)?1+(u.bq?u.bq.length:0):0;
-      rs.sort((a,b)=>load(a)-load(b)||Math.hypot(a.x-st.x,a.y-st.y)-Math.hypot(b.x-st.x,b.y-st.y));
-      const r=rs[0];
-      if(buildingNow(r)){(r.bq||(r.bq=[])).push(st.id);}
-      else {r.bq=[]; r.cmd={t:'build',site:st.id}; r.path=null; r.repath=0;}
+      // every selected runner works on it together; runners already building add it to their list
+      for(const r of rs){
+        if(buildingNow(r)){(r.bq||(r.bq=[])).push(st.id);}
+        else {r.bq=[]; r.cmd={t:'build',site:st.id}; r.path=null; r.repath=0;}}
       break;}
     case 'train': if(B&&B.kind==='bld'&&trainsOf(B).includes(m.ty))train(B,m.ty); break;
     case 'cancel': if(B&&B.kind==='bld')cancelQ(B,m.i|0); break;
