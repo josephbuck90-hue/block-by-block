@@ -47,7 +47,7 @@ The whole game is a single `index.html` file with no build step.
 - **City layouts:** Classic, Random, Downtown, Industrial and Waterfront.
 - **Saves:** single-player games autosave. Use Continue on the main menu.
 - **Bigger units:** toggle in the pause menu.
-- **Painted buildings:** gang buildings, storefronts and the city's apartment blocks, offices and warehouses use painted isometric art (made with SpriteCook) that takes each gang's colour. Switch to the classic look under Settings > Building art.
+- **Painted buildings:** gang buildings, storefronts and the city's apartment blocks, offices and warehouses use painted isometric art (made with SpriteCook), and vehicles are 3D renders from Blender in 16 directions (`art/blender/cars.py`) that takes each gang's colour. Switch to the classic look under Settings > Building art.
 
 ## Game modes
 
