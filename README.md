@@ -50,7 +50,7 @@ The whole game is a single `index.html` file with no build step.
 - **Battle scars:** muzzle flashes, sparks, bullet pocks and blood stay on the street; damaged buildings get soot, boarded windows and fire in the windows.
 - **Neighborhood flavor:** each Hideout carries a gang mural, Calle Sexta's blocks have Spanish storefronts, neon signs have burned-out letters, and the music picks up the style of whichever gang runs the block you're looking at.
 - **Trap House:** every map has one. It holds the most cash of any business, but each pickup brings heavy heat.
-- **The Stroll:** a street corner that never runs dry. Its cash builds back up on its own, fastest after dark, but every pickup draws heavy vice heat.
+- **The Stroll:** a stretch of sidewalk, not a building, where a few women wave down passing cars; drivers pull over and one walks up to the window. Its cash builds back up on its own, fastest after dark, but every pickup draws heavy vice heat.
 - **City events:** armored trucks to rob, parades, blackouts, police crackdowns, truces and payday at a business.
 - **Day and night:** matches start at dusk and roll through night, dawn and day. You see less at night.
 - **City layouts:** Classic, Random, Downtown, Industrial and Waterfront.
