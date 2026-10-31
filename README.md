@@ -45,6 +45,10 @@ The whole game is a single `index.html` file with no build step.
 - **A city that's seen better days:** cracked and patched streets, potholes, stains, litter, trash bags, dumpsters, tire piles and dumped mattresses.
 - **Graffiti:** old tags cover the walls, and every block you hold gets your gang's tag in your colour.
 - **Español:** switch the whole game to Spanish under Settings > Language (it picks Spanish automatically when your browser is set to it). Translations live in `i18n/es.json`.
+- **Weather:** some nights it rains (wet streets, puddles, reflections, rain sound) and some maps roll in fog. Turn it off under Settings > Weather.
+- **Street life:** homeless camps with tents, carts and burn barrels, people asleep or nodding off in doorways, stoop sitters, stray dogs, parked cars along the curbs, headlights and police light bars at night.
+- **Battle scars:** muzzle flashes, sparks, bullet pocks and blood stay on the street; damaged buildings get soot, boarded windows and fire in the windows.
+- **Neighborhood flavor:** each Hideout carries a gang mural, Sixth Street's blocks have Spanish storefronts, neon signs have burned-out letters, and the music picks up the style of whichever gang runs the block you're looking at.
 - **Trap House:** every map has one. It holds the most cash of any business, but each pickup brings heavy heat.
 - **City events:** armored trucks to rob, parades, blackouts, police crackdowns, truces and payday at a business.
 - **Day and night:** matches start at dusk and roll through night, dawn and day. You see less at night.

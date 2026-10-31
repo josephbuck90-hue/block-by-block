@@ -673,5 +673,9 @@
 "Rides": "Carros",
 "Armored Vans": "Furgonetas blindadas",
 "fighters": "peleadores",
-"runners": "recaderos"
+"runners": "recaderos",
+"Weather": "Clima",
+"Rain": "Lluvia",
+"Fog": "Niebla",
+"Wet": "Mojado"
 }

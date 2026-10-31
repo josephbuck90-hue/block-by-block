@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import bpy
 from blib import reset, mat, box, cyl, sphere, empty, render
 
-OUT = sys.argv[sys.argv.index('--out') + 1]
+OUT = sys.argv[sys.argv.index('--out') + 1] if '--out' in sys.argv else '/tmp/ch'
 ONLY = sys.argv[sys.argv.index('--only') + 1].split(',') if '--only' in sys.argv else None
 os.makedirs(OUT, exist_ok=True)
 DIRS = 8
@@ -196,14 +196,18 @@ def pose(parts, w, p):
         else:
             sl.rotation_euler = (0, -lg * .8, 0)
 
-types = ONLY or list(SPEC)
-for t in types:
-    reset(res=112, ortho=3.6, target_z=1.15, samples=28, line=1.5)
-    root, parts, w = build(t)
-    for p in POSES:
-        pose(parts, w, p)
-        for d in range(DIRS):
-            th = 2 * math.pi * d / DIRS
-            root.rotation_euler = (0, 0, -th)
-            render(os.path.join(OUT, f'{t}_{p}_{d}.png'))
-    print('done', t)
+def main():
+  types = ONLY or list(SPEC)
+  for t in types:
+      reset(res=112, ortho=3.6, target_z=1.15, samples=28, line=1.5)
+      root, parts, w = build(t)
+      for p in POSES:
+          pose(parts, w, p)
+          for d in range(DIRS):
+              th = 2 * math.pi * d / DIRS
+              root.rotation_euler = (0, 0, -th)
+              render(os.path.join(OUT, f'{t}_{p}_{d}.png'))
+      print('done', t)
+
+if __name__ == '__main__':
+    main()
