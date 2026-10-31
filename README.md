@@ -41,12 +41,13 @@ The whole game is a single `index.html` file with no build step.
 - **Turf:** park your crew in a block until its border fills in. Held blocks pay you every second.
 - **Veterans:** units that get takedowns rank up (Veteran, Elite, Legend) and hit harder.
 - **Gang powers:** upgrade your Hideout to Headquarters, then press **R**. Each gang has its own power.
+- **Trap House:** every map has one. It holds the most cash of any business, but each pickup brings heavy heat.
 - **City events:** armored trucks to rob, parades, blackouts, police crackdowns, truces and payday at a business.
 - **Day and night:** matches start at dusk and roll through night, dawn and day. You see less at night.
 - **City layouts:** Classic, Random, Downtown, Industrial and Waterfront.
 - **Saves:** single-player games autosave. Use Continue on the main menu.
 - **Bigger units:** toggle in the pause menu.
-- **Painted buildings:** gang buildings and storefronts use painted isometric art (made with SpriteCook) that takes each gang's colour. Switch to the classic look under Settings > Building art.
+- **Painted buildings:** gang buildings, storefronts and the city's apartment blocks, offices and warehouses use painted isometric art (made with SpriteCook) that takes each gang's colour. Switch to the classic look under Settings > Building art.
 
 ## Game modes
 
