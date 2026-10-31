@@ -1,7 +1,7 @@
 {
   "name": "block-by-block",
   "productName": "Block by Block",
-  "version": "0.10.2",
+  "version": "0.11.0",
   "description": "A gangland real-time strategy game.",
   "author": "Joseph Buck",
   "main": "main.js",

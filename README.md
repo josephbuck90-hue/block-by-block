@@ -41,6 +41,10 @@ The whole game is a single `index.html` file with no build step.
 - **Turf:** park your crew in a block until its border fills in. Held blocks pay you every second.
 - **Veterans:** units that get takedowns rank up (Veteran, Elite, Legend) and hit harder.
 - **Gang powers:** upgrade your Hideout to Headquarters, then press **R**. Each gang has its own power.
+- **Characters:** every unit and pedestrian is a 3D Blender render in 8 directions with walk, idle and attack poses (`art/blender/characters.py`). Clothing takes the gang's colours.
+- **A city that's seen better days:** cracked and patched streets, potholes, stains, litter, trash bags, dumpsters, tire piles and dumped mattresses.
+- **Graffiti:** old tags cover the walls, and every block you hold gets your gang's tag in your colour.
+- **Español:** switch the whole game to Spanish under Settings > Language (it picks Spanish automatically when your browser is set to it). Translations live in `i18n/es.json`.
 - **Trap House:** every map has one. It holds the most cash of any business, but each pickup brings heavy heat.
 - **City events:** armored trucks to rob, parades, blackouts, police crackdowns, truces and payday at a business.
 - **Day and night:** matches start at dusk and roll through night, dawn and day. You see less at night.
