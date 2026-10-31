@@ -7,7 +7,7 @@ A modern-day gangland real-time strategy game that runs in your browser. No inst
 ## Multiplayer (up to 6 players)
 1. One player opens the game, chooses **Multiplayer**, enters a name and clicks **Host a game**.
 2. They share the 5-letter room code. Everyone else opens the same link, chooses **Multiplayer**, enters the code and clicks **Join**.
-3. Each player picks a gang. The host chooses how many gangs are on the map (the AI fills empty corners), the map size and the AI difficulty, then starts the war.
+3. Each player picks a gang. The host chooses how many gangs are on the map (the AI fills empty seats), the map size and the AI difficulty, then starts the war.
 
 **Voice chat:** click **Join voice chat** in the lobby, or **Voice** (key **T**) during a match. Your browser asks for the microphone once. Press **T** again to mute. Names glow while people talk, and anyone can listen without turning on their own mic.
 
@@ -51,6 +51,7 @@ The whole game is a single `index.html` file with no build step.
 - **Neighborhood flavor:** each Hideout carries a gang mural, Calle Sexta's blocks have Spanish storefronts, neon signs have burned-out letters, and the music picks up the style of whichever gang runs the block you're looking at.
 - **Trap House:** every map has one. It holds the most cash of any business, but each pickup brings heavy heat.
 - **The Stroll:** a stretch of sidewalk, not a building, where a few women wave down passing cars; drivers pull over and one walks up to the window. Its cash builds back up on its own, fastest after dark, but every pickup draws heavy vice heat.
+- **Random starts:** hideouts land in different spots every map, spread apart and never next to the police station.
 - **City events:** armored trucks to rob, parades, blackouts, police crackdowns, truces and payday at a business.
 - **Day and night:** matches start at dusk and roll through night, dawn and day. You see less at night.
 - **City layouts:** Classic, Random, Downtown, Industrial and Waterfront.

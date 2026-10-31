@@ -690,12 +690,39 @@ function pickThemes(){
   }
   return th;
 }
+// hideout blocks: random each map, spread apart, never next to the police station; the same seed gives the same spots on every machine
+function pickSpawns(seed,sb,sy,water){
+  const r=mulberry((seed|0)+31337), NS=6, dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+  const okBase=(x,y)=>!(Math.abs(x-sb)<=1&&Math.abs(y-sy)<=1)&&!(water&&y===sy);
+  const okNear=(x,y)=>x>=0&&y>=0&&x<NBX&&y<NBY&&!(x===sb&&y===sy)&&!(water&&y===sy);
+  let best=null;
+  for(let at=0;at<600&&!best;at++){
+    const D=Math.max(2,Math.min(NBX,NBY)*.5-Math.floor(at/60)*.3), cells=[];
+    for(let y=0;y<NBY;y++)for(let x=0;x<NBX;x++)if(okBase(x,y))cells.push([x,y]);
+    for(let i=cells.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[cells[i],cells[j]]=[cells[j],cells[i]];}
+    const sp=[], nr=[], used=new Set();
+    for(const c of cells){if(sp.length>=NS)break; if(used.has(c+'')||sp.some(q=>dist(q,c)<D))continue;
+      const nb=[[c[0]+1,c[1]],[c[0]-1,c[1]],[c[0],c[1]+1],[c[0],c[1]-1]].filter(([x,y])=>okNear(x,y)&&!used.has(x+','+y)&&!sp.some(q=>q[0]===x&&q[1]===y));
+      if(nb.length<2)continue; nb.sort(()=>r()-.5);
+      sp.push(c); nr.push(nb.slice(0,2)); used.add(c+''); for(const n of nb.slice(0,2))used.add(n+'');}
+    if(sp.length===NS)best=[sp,nr];
+  }
+  if(!best){const mx=Math.floor(NBX/2), X=NBX-1, Y=NBY-1; CORNERS=[[0,Y],[X,0],[0,0],[X,Y],[mx,0],[X-mx,Y]]; NEARS=CORNERS.map(([cx,cy])=>[[cx===0?1:cx===X?X-1:(cy===0?cx-1:cx+1),cy],[cx,cy===0?1:Y-1]]); return;}
+  // order seats so the first two are as far apart as possible, then each next one stays far from those already placed
+  // (not always the single farthest pair, so a 1v1 isn't just corner vs corner every time)
+  let [sp,nr]=best, idx=[...sp.keys()], ord=[], prs=[], bd=0;
+  for(const i of idx)for(const j of idx)if(i!==j){const d=dist(sp[i],sp[j]); prs.push([i,j,d]); bd=Math.max(bd,d);}
+  const okp=prs.filter(q=>q[2]>=bd*.6), pr=okp[Math.floor(r()*okp.length)]; ord.push(pr[0],pr[1]);
+  while(ord.length<NS){const sc=idx.filter(i=>!ord.includes(i)).map(i=>[i,Math.min(...ord.map(o=>dist(sp[o],sp[i])))]), top=Math.max(...sc.map(q=>q[1])), ok=sc.filter(q=>q[1]>=top*.75); ord.push(ok[Math.floor(r()*ok.length)][0]);}
+  CORNERS=ord.map(i=>sp[i]); NEARS=ord.map(i=>nr[i]);
+}
 function genMap(seed,lay){
   if(lay)layout=LAYOUTS[lay]?lay:'classic';
   rng=mulberry(seed); tiles.fill(STREET); occ.fill(0); roofs=[]; trees=[]; bizSpots=[];
   const forced={};
-  CORNERS.forEach(([cx,cy],i)=>{forced[cx+','+cy]='base'; for(const [nx,ny] of NEARS[i])forced[nx+','+ny]='near';});
   const sb=Math.floor(NBX/2)-(rng()<.5?1:0), sy=Math.floor(NBY/2); forced[sb+','+sy]='station'; stationSpot={tx:sb*BS+5,ty:sy*BS+5};
+  pickSpawns(seed,sb,sy,lay==='waterfront'||layout==='waterfront');
+  CORNERS.forEach(([cx,cy],i)=>{forced[cx+','+cy]='base'; for(const [nx,ny] of NEARS[i])forced[nx+','+ny]='near';});
   blockTheme=pickThemes();
   if(layout==='waterfront'){for(let bx=0;bx<NBX;bx++){const k=bx+','+sy; if(!forced[k])forced[k]='water';}}
   const mids=[];
@@ -1850,7 +1877,7 @@ function newGame(d,gang,nRiv,size,seats,lay){
   let ph=null;
   for(const o of OWN){
     const [cx,cy]=CORNERS[o], h=mkBld('hideout',o,cx*BS+5,cy*BS+5,true); if(o===ME)ph=h;
-    for(let i=0;i<4;i++){const a=approachTile(h,h.x+(cx?-200:200),h.y+(i-1.5)*60);const u=mkUnit('runner',o,a[0]+R(-6,6),a[1]+R(-6,6));u.cmd={t:'gather',biz:0,ph:'to'};}
+    for(let i=0;i<4;i++){const a=approachTile(h,h.x+(h.x>WW/2?-200:200),h.y+(i-1.5)*60);const u=mkUnit('runner',o,a[0]+R(-6,6),a[1]+R(-6,6));u.cmd={t:'gather',biz:0,ph:'to'};}
     const a=approachTile(h,WW/2,WH/2); mkUnit('thug',o,a[0],a[1]);
   }
   initTurf(); for(const e of ents)if(e.type==='hideout'){const t=turf[blockOf(e.x,e.y)]; t.o=e.owner; t.p=1; t.held=1;}
