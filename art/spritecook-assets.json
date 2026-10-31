@@ -1,0 +1,11 @@
+{
+  "project": {"name": "Block by Block", "id": "f5450623-348f-45e5-a390-d849156b25cb"},
+  "assets": [
+    {"asset_id": "f62f8962-8fc2-4abc-88b9-faf134fedece", "name": "buildings sheet", "model": "gemini-nano-banana-2.1", "pixel": false,
+     "contents": ["hideout","safehouse","clubhouse","front","chopshop","lookout","stash","station","bodega"], "local": "art/buildings-atlas.png"},
+    {"asset_id": "145ec20a-78b1-4dda-881d-218020717e61", "name": "storefronts sheet", "model": "gemini-nano-banana-2.1", "pixel": false,
+     "style_ref": "f62f8962-8fc2-4abc-88b9-faf134fedece",
+     "contents": ["diner","pawn shop","barbershop","car wash","nightclub","liquor store","tire shop","laundromat","nail salon"], "local": "art/storefronts-atlas.png"}
+  ],
+  "notes": "Pure green #00FF00 areas are team-colour masks, recoloured at runtime. Atlases are embedded in index.html as WebP."
+}
