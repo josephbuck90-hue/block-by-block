@@ -1,8 +1,8 @@
-# Block by Block — desktop app
+# Concrete Empire: Gangs of the Block — desktop app
 
 The web game (`../index.html`) wrapped as a Windows app with Electron.
 
-- Saves and settings are JSON files in `%APPDATA%\block-by-block\saves`.
+- Saves and settings are JSON files in `%APPDATA%\Concrete Empire\saves`.
 - Fonts and PeerJS are bundled, so single player works fully offline.
 - F11 toggles fullscreen. Settings → Display has window sizes.
 
@@ -12,7 +12,7 @@ The web game (`../index.html`) wrapped as a Windows app with Electron.
 cd desktop
 npm install
 npm start              # run it
-npm run package:win    # makes dist\BlockByBlock-win32-x64\BlockByBlock.exe
+npm run package:win    # makes dist\ConcreteEmpire-win32-x64\ConcreteEmpire.exe
 ```
 
 ## Build on GitHub

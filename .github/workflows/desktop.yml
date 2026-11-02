@@ -20,5 +20,5 @@ jobs:
         run: npm run package:win
       - uses: actions/upload-artifact@v4
         with:
-          name: BlockByBlock-Windows-x64
-          path: desktop/dist/BlockByBlock-win32-x64
+          name: ConcreteEmpire-Windows-x64
+          path: desktop/dist/ConcreteEmpire-win32-x64

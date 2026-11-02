@@ -1,4 +1,4 @@
-# Block by Block
+# Concrete Empire: Gangs of the Block
 
 A modern-day gangland real-time strategy game that runs in your browser. No install or account needed.
 

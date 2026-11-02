@@ -1,9 +1,19 @@
-// Block by Block desktop shell: one window, saves as JSON files in the user's app data folder.
+// Concrete Empire: Gangs of the Block desktop shell: one window, saves as JSON files in the user's app data folder.
 const { app, BrowserWindow, ipcMain, Menu, shell, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
 let win = null;
+// saves live in %APPDATA%\\Concrete Empire; carry over saves from before the rename (when the app was "Block by Block")
+app.setName('Concrete Empire');
+app.setPath('userData', path.join(app.getPath('appData'), 'Concrete Empire'));
+try {
+  const nd = path.join(app.getPath('userData'), 'saves');
+  if (!fs.existsSync(nd)) for (const old of ['Block by Block', 'block-by-block']) {
+    const od = path.join(app.getPath('appData'), old, 'saves');
+    if (fs.existsSync(od)) { fs.mkdirSync(nd, { recursive: true }); for (const f of fs.readdirSync(od)) fs.copyFileSync(path.join(od, f), path.join(nd, f)); break; }
+  }
+} catch (_) {}
 const saveDir = () => path.join(app.getPath('userData'), 'saves');
 const fileFor = (k) => path.join(saveDir(), String(k).replace(/[^a-z0-9_-]/gi, '_') + '.json');
 
@@ -42,7 +52,7 @@ function createWindow() {
   const [w, h] = String(s.win || '1600x900').split('x').map(Number);
   win = new BrowserWindow({
     width: w || 1600, height: h || 900, useContentSize: true, minWidth: 1024, minHeight: 640,
-    backgroundColor: '#0b0e12', title: 'Block by Block', show: false, autoHideMenuBar: true,
+    backgroundColor: '#0b0e12', title: 'Concrete Empire: Gangs of the Block', show: false, autoHideMenuBar: true,
     fullscreen: !!s.fs,
     icon: path.join(__dirname, 'app', 'icon.png'),
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true, devTools: !app.isPackaged },

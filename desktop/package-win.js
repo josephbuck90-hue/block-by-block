@@ -6,12 +6,12 @@ const path = require('path');
 (async () => {
   const pkg = require('./package.json');
   const [dir] = await packager({
-    dir: __dirname, name: 'BlockByBlock', executableName: 'BlockByBlock', platform: 'win32', arch: 'x64',
+    dir: __dirname, name: 'ConcreteEmpire', executableName: 'ConcreteEmpire', platform: 'win32', arch: 'x64',
     out: path.join(__dirname, 'dist'), overwrite: true, asar: true, prune: true,
     ignore: [/^\/dist/, /^\/node_modules\/(@fontsource|peerjs|resedit|@electron\/packager)/, /^\/build\.js$/, /^\/package-win\.js$/, /^\/icon\//],
     appCopyright: 'Copyright 2026 Joseph Buck', appVersion: pkg.version,
   });
-  const exe = path.join(dir, 'BlockByBlock.exe');
+  const exe = path.join(dir, 'ConcreteEmpire.exe');
   const data = fs.readFileSync(exe);
   const exeObj = ResEdit.NtExecutable.from(data, { ignoreCert: true });
   const res = ResEdit.NtExecutableResource.from(exeObj);
@@ -20,7 +20,7 @@ const path = require('path');
   const vi = ResEdit.Resource.VersionInfo.fromEntries(res.entries)[0];
   const v = pkg.version.split('.').map(Number);
   vi.setFileVersion(v[0], v[1], v[2], 0, 1033); vi.setProductVersion(v[0], v[1], v[2], 0, 1033);
-  vi.setStringValues({ lang: 1033, codepage: 1200 }, { ProductName: 'Block by Block', FileDescription: 'Block by Block', CompanyName: 'Joseph Buck', LegalCopyright: 'Copyright 2026 Joseph Buck', OriginalFilename: 'BlockByBlock.exe' });
+  vi.setStringValues({ lang: 1033, codepage: 1200 }, { ProductName: 'Concrete Empire: Gangs of the Block', FileDescription: 'Concrete Empire: Gangs of the Block', CompanyName: 'Joseph Buck', LegalCopyright: 'Copyright 2026 Joseph Buck', OriginalFilename: 'ConcreteEmpire.exe' });
   vi.outputToResourceEntries(res.entries);
   res.outputResource(exeObj);
   fs.writeFileSync(exe, Buffer.from(exeObj.generate()));

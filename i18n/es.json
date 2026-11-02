@@ -355,7 +355,6 @@
 "Plated Doors": "Puertas blindadas",
 "Plated van with a gunner in back. Soaks up a lot of fire.": "Furgoneta blindada con un tirador atrás. Aguanta muchos disparos.",
 "Play again": "Jugar otra vez",
-"Play with up to five friends. One player hosts and shares a room code, and everyone else joins with it. The AI runs any empty corners.": "Juega con hasta cinco amigos. Un jugador crea la partida y comparte un código de sala, y los demás entran con él. La IA controla las esquinas vacías.",
 "Player": "Jugador",
 "Players": "Jugadores",
 "Police": "Policía",
@@ -431,7 +430,6 @@
 "Silver Line signature. SMG with a high rate of fire at mid range.": "Unidad insignia de Silver Line. Subfusil con mucha cadencia a media distancia.",
 "Silver Line wants your corner and they are sending everything. Survive until the cavalry shows.": "Silver Line quiere tu esquina y está mandando todo. Sobrevive hasta que llegue la caballería.",
 "Single player": "Un jugador",
-"Six crews, one city. Pick your gang, take the southwest corner, and build an operation on cash from the neighborhood businesses. Upgrade your buildings to unlock heavier hitters, then take down every rival Hideout. Keep your heat down. Push it past the line and squads roll out of the police station downtown.": "Seis pandillas, una ciudad. Elige tu pandilla, toma la esquina suroeste y arma una operación con el dinero de los negocios del barrio. Mejora tus edificios para desbloquear matones más pesados y luego derriba cada Guarida rival. Mantén bajo tu calor. Si pasas el límite, las patrullas salen de la comisaría del centro.",
 "Calle Sexta got pushed back. Regroup and run the job again.": "Calle Sexta tuvo que retroceder. Reagrúpate y vuelve a intentar el trabajo.",
 "Calle Sexta signature. Two pistols, fast fire, quick on his feet.": "Unidad insignia de Calle Sexta. Dos pistolas, disparo rápido y ágil.",
 "Calle Sexta starts with one corner. Take the city one crew at a time. Each win unlocks the next job.": "Calle Sexta empieza con una esquina. Toma la ciudad pandilla por pandilla. Cada victoria desbloquea el siguiente trabajo.",
@@ -440,7 +438,6 @@
 "Small": "Pequeño",
 "Snitch": "Soplón",
 "Sound": "Sonido",
-"Southwest corner regulars": "Los de siempre de la esquina suroeste",
 "Space": "Espacio",
 "Speed": "Velocidad",
 "Spotlights": "Reflectores",
@@ -680,5 +677,8 @@
 "Wet": "Mojado",
 "The Stroll": "La Zona",
 "Worked dry for now. The cash builds back up on its own.": "Sin efectivo por ahora. Vuelve a acumularse solo.",
-"A stretch of sidewalk where a few women work the passing cars. It never runs dry: the cash builds back up on its own, fastest after dark, but every pickup draws vice heat.": "Un tramo de acera donde unas mujeres trabajan los coches que pasan. Nunca se seca: el efectivo vuelve a acumularse solo, más rápido de noche, pero cada recogida atrae a la brigada antivicio."
+"A stretch of sidewalk where a few women work the passing cars. It never runs dry: the cash builds back up on its own, fastest after dark, but every pickup draws vice heat.": "Un tramo de acera donde unas mujeres trabajan los coches que pasan. Nunca se seca: el efectivo vuelve a acumularse solo, más rápido de noche, pero cada recogida atrae a la brigada antivicio.",
+"Six crews, one city. Pick your gang, claim your first block, and build an operation on cash from the neighborhood businesses. Upgrade your buildings to unlock heavier hitters, then take down every rival Hideout. Keep your heat down. Push it past the line and squads roll out of the police station downtown.": "Seis pandillas, una ciudad. Elige tu pandilla, reclama tu primera cuadra y arma una operación con el dinero de los negocios del barrio. Mejora tus edificios para desbloquear matones más pesados y luego derriba cada Guarida rival. Mantén bajo tu calor. Si pasas el límite, las patrullas salen de la comisaría del centro.",
+"Barrio regulars": "Los de siempre del barrio",
+"Play with up to five friends. One player hosts and shares a room code, and everyone else joins with it. The AI runs any empty seats.": "Juega con hasta cinco amigos. Un jugador crea la partida y comparte un código de sala, y los demás entran con él. La IA controla los lugares vacíos."
 }
